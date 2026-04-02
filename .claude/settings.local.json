@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Skill(claude-md-management:revise-claude-md)",
+      "Skill(humanizer-skill:humanizer)",
+      "Bash(start index.html)"
+    ]
+  }
+}

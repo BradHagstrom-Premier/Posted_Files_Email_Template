@@ -1,0 +1,882 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Posted Files Email Generator</title>
+    <style>
+        /* ───────────────────────────────────────────
+           Reset & Custom Properties
+           ─────────────────────────────────────────── */
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --blue: #0D2C71;
+            --blue-light: #1a3d8f;
+            --blue-muted: rgba(13, 44, 113, 0.08);
+            --green: #00AB63;
+            --green-dark: #009955;
+            --bg: #f0f2f5;
+            --bg-white: #ffffff;
+            --text: #1a1a2e;
+            --text-secondary: #6b7280;
+            --border: #dde1e7;
+            --border-focus: #0D2C71;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.06);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+            --shadow-lg: 0 8px 24px rgba(0,0,0,0.1);
+            --radius: 8px;
+            --radius-sm: 5px;
+            --transition: 0.18s ease;
+        }
+
+        html, body {
+            height: 100%;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ───────────────────────────────────────────
+           Header
+           ─────────────────────────────────────────── */
+        .header {
+            background: var(--blue);
+            color: #ffffff;
+            padding: 0 28px;
+            height: 52px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 2px 8px rgba(13, 44, 113, 0.25);
+            position: relative;
+            z-index: 10;
+        }
+
+        .header::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--green) 0%, var(--green) 30%, transparent 30%);
+        }
+
+        .header-pip {
+            width: 4px;
+            height: 22px;
+            background: var(--green);
+            border-radius: 2px;
+            flex-shrink: 0;
+        }
+
+        .header-title {
+            font-size: 15px;
+            font-weight: 600;
+            letter-spacing: 0.2px;
+        }
+
+        .header-badge {
+            margin-left: auto;
+            font-size: 11px;
+            font-weight: 500;
+            background: rgba(255,255,255,0.12);
+            padding: 3px 10px;
+            border-radius: 20px;
+            letter-spacing: 0.3px;
+            text-transform: uppercase;
+        }
+
+        /* ───────────────────────────────────────────
+           Main Layout — Split Panel
+           ─────────────────────────────────────────── */
+        .main {
+            display: flex;
+            height: calc(100vh - 52px);
+            overflow: hidden;
+        }
+
+        .panel-form {
+            width: 44%;
+            min-width: 360px;
+            padding: 28px 28px 40px;
+            overflow-y: auto;
+            background: var(--bg-white);
+            border-right: 1px solid var(--border);
+        }
+
+        .panel-form::-webkit-scrollbar {
+            width: 6px;
+        }
+        .panel-form::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .panel-form::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 3px;
+        }
+
+        .panel-preview {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: var(--bg);
+            min-width: 0;
+        }
+
+        /* ───────────────────────────────────────────
+           Form Styles
+           ─────────────────────────────────────────── */
+        .form-section-title {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--blue);
+            margin-bottom: 20px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid var(--blue-muted);
+        }
+
+        .form-group {
+            margin-bottom: 22px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 12.5px;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 6px;
+            letter-spacing: 0.15px;
+        }
+
+        .form-label-hint {
+            font-weight: 400;
+            color: var(--text-secondary);
+            font-size: 11.5px;
+            margin-left: 4px;
+        }
+
+        .form-input,
+        .form-select,
+        .form-textarea {
+            width: 100%;
+            padding: 10px 13px;
+            font-size: 13.5px;
+            font-family: inherit;
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius-sm);
+            background: var(--bg-white);
+            color: var(--text);
+            transition: border-color var(--transition), box-shadow var(--transition);
+        }
+
+        .form-input::placeholder,
+        .form-textarea::placeholder {
+            color: #b0b7c3;
+        }
+
+        .form-input:focus,
+        .form-select:focus,
+        .form-textarea:focus {
+            outline: none;
+            border-color: var(--border-focus);
+            box-shadow: 0 0 0 3px var(--blue-muted);
+        }
+
+        .form-select {
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M2 4l4 4 4-4' fill='none' stroke='%236b7280' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            padding-right: 32px;
+        }
+
+        .form-textarea {
+            resize: vertical;
+            min-height: 76px;
+            line-height: 1.5;
+        }
+
+        /* Cycle custom input */
+        .cycle-custom-toggle {
+            font-size: 11.5px;
+            color: var(--blue);
+            cursor: pointer;
+            text-decoration: none;
+            margin-top: 5px;
+            display: inline-flex;
+            align-items: center;
+            gap: 3px;
+            opacity: 0.8;
+            transition: opacity var(--transition);
+        }
+        .cycle-custom-toggle:hover {
+            opacity: 1;
+            text-decoration: underline;
+        }
+
+        /* ───────────────────────────────────────────
+           File Location Rows
+           ─────────────────────────────────────────── */
+        .file-rows-header {
+            display: flex;
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+            margin-bottom: 6px;
+            padding: 0 0 0 28px;
+            gap: 8px;
+        }
+
+        .file-rows-header-label { flex: 2; }
+        .file-rows-header-url { flex: 3; }
+
+        .file-row {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 8px;
+            align-items: center;
+            animation: rowSlideIn 0.2s ease;
+        }
+
+        @keyframes rowSlideIn {
+            from { opacity: 0; transform: translateY(-6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .file-row-num {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--blue);
+            min-width: 20px;
+            text-align: right;
+            flex-shrink: 0;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .file-row-label { flex: 2; }
+        .file-row-url { flex: 3; }
+
+        .file-row .form-input {
+            padding: 8px 11px;
+            font-size: 13px;
+        }
+
+        .btn-remove-row {
+            background: none;
+            border: none;
+            color: #c5c9d1;
+            cursor: pointer;
+            font-size: 17px;
+            padding: 4px 6px;
+            border-radius: var(--radius-sm);
+            transition: color var(--transition), background var(--transition);
+            flex-shrink: 0;
+            line-height: 1;
+        }
+
+        .btn-remove-row:hover {
+            color: #dc2626;
+            background: #fef2f2;
+        }
+
+        .btn-add-row {
+            background: none;
+            border: 1.5px dashed var(--border);
+            color: var(--blue);
+            padding: 9px 16px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            border-radius: var(--radius-sm);
+            transition: border-color var(--transition), background var(--transition);
+            width: 100%;
+            margin-top: 2px;
+        }
+
+        .btn-add-row:hover {
+            border-color: var(--blue);
+            background: var(--blue-muted);
+        }
+
+        /* ───────────────────────────────────────────
+           Preview Panel
+           ─────────────────────────────────────────── */
+        .subject-bar {
+            padding: 16px 24px;
+            background: var(--bg-white);
+            border-bottom: 1px solid var(--border);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .subject-label {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: var(--text-secondary);
+            margin-bottom: 7px;
+        }
+
+        .subject-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .subject-text {
+            flex: 1;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text);
+            word-break: break-word;
+            line-height: 1.35;
+        }
+
+        .btn-copy {
+            background: var(--blue);
+            color: #ffffff;
+            border: none;
+            padding: 7px 15px;
+            font-size: 12px;
+            font-weight: 600;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            white-space: nowrap;
+            transition: background var(--transition), transform 0.1s, box-shadow var(--transition);
+            letter-spacing: 0.2px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .btn-copy:hover {
+            background: var(--blue-light);
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-copy:active {
+            transform: scale(0.96);
+        }
+
+        .preview-container {
+            flex: 1;
+            padding: 20px 24px;
+            overflow: auto;
+        }
+
+        .preview-frame {
+            width: 100%;
+            height: 100%;
+            min-height: 420px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            background: #ffffff;
+            box-shadow: var(--shadow-md);
+        }
+
+        .copy-bar {
+            padding: 14px 24px;
+            background: var(--bg-white);
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: center;
+            box-shadow: 0 -2px 8px rgba(0,0,0,0.04);
+        }
+
+        .btn-copy-email {
+            background: var(--blue);
+            color: #ffffff;
+            border: none;
+            padding: 13px 36px;
+            font-size: 14px;
+            font-weight: 700;
+            border-radius: var(--radius);
+            cursor: pointer;
+            transition: background var(--transition), transform 0.1s, box-shadow var(--transition);
+            width: 100%;
+            max-width: 420px;
+            letter-spacing: 0.3px;
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-copy-email:hover {
+            background: var(--blue-light);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .btn-copy-email:active {
+            transform: scale(0.98);
+        }
+
+        /* ───────────────────────────────────────────
+           Toast
+           ─────────────────────────────────────────── */
+        .toast {
+            position: fixed;
+            bottom: 28px;
+            left: 50%;
+            transform: translateX(-50%) translateY(16px);
+            background: var(--green);
+            color: #ffffff;
+            padding: 10px 28px;
+            border-radius: 10px;
+            font-size: 13.5px;
+            font-weight: 600;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.25s, transform 0.25s;
+            z-index: 1000;
+            box-shadow: 0 6px 20px rgba(0, 171, 99, 0.3);
+            letter-spacing: 0.2px;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        /* ───────────────────────────────────────────
+           Responsive — Stack below 1024px
+           ─────────────────────────────────────────── */
+        @media (max-width: 1024px) {
+            .main {
+                flex-direction: column;
+                height: auto;
+                overflow-y: auto;
+            }
+            .panel-form {
+                width: 100%;
+                min-width: 0;
+                border-right: none;
+                border-bottom: 1px solid var(--border);
+            }
+            .panel-preview {
+                width: 100%;
+                min-height: 560px;
+            }
+            .header-badge {
+                display: none;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .file-rows-header { display: none; }
+            .file-row {
+                flex-wrap: wrap;
+                gap: 4px;
+            }
+            .file-row-num {
+                min-width: 16px;
+            }
+            .file-row-label,
+            .file-row-url {
+                flex: 1 1 100%;
+                margin-left: 28px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ─── Header ──────────────────────────────── -->
+    <div class="header">
+        <div class="header-pip"></div>
+        <span class="header-title">Posted Files Email Generator</span>
+        <span class="header-badge">Definian</span>
+    </div>
+
+    <!-- ─── Main Split Layout ───────────────────── -->
+    <div class="main">
+
+        <!-- Left: Form Panel -->
+        <div class="panel-form" id="formPanel">
+            <div class="form-section-title">Email Details</div>
+
+            <div class="form-group">
+                <label class="form-label" for="conversionName">Conversion Name</label>
+                <input type="text" class="form-input" id="conversionName"
+                       placeholder="e.g., Item Master, Purchase Orders, On-Hand Balances">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="cycleSelect">Cycle</label>
+                <div id="cycleContainer">
+                    <select class="form-select" id="cycleSelect">
+                        <option value="">Select cycle...</option>
+                        <option value="SIT1">SIT1</option>
+                        <option value="SIT2">SIT2</option>
+                        <option value="UAT">UAT</option>
+                        <option value="Mock 1">Mock 1</option>
+                        <option value="Mock 2">Mock 2</option>
+                        <option value="Mock 3">Mock 3</option>
+                        <option value="D-Cut">D-Cut</option>
+                        <option value="__other__">Other (custom)...</option>
+                    </select>
+                    <input type="text" class="form-input" id="cycleCustom"
+                           placeholder="Enter custom cycle name" style="display:none;">
+                    <span class="cycle-custom-toggle" id="cycleToggle" style="display:none;">&larr; Back to dropdown</span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">
+                    Summary of Changes
+                    <span class="form-label-hint">(optional)</span>
+                </label>
+                <textarea class="form-textarea" id="summaryChanges"
+                          placeholder="What changed from last posting, what's new, notable decisions..."></textarea>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">File Locations</label>
+                <div class="file-rows-header">
+                    <span class="file-rows-header-label">Label</span>
+                    <span class="file-rows-header-url">SharePoint URL</span>
+                </div>
+                <div id="fileLocations">
+                    <div class="file-row">
+                        <span class="file-row-num">1.</span>
+                        <input type="text" class="form-input file-row-label" value="Conversion/Error Log" placeholder="Label">
+                        <input type="text" class="form-input file-row-url" placeholder="SharePoint URL">
+                        <button type="button" class="btn-remove-row" title="Remove row">&times;</button>
+                    </div>
+                    <div class="file-row">
+                        <span class="file-row-num">2.</span>
+                        <input type="text" class="form-input file-row-label" value="Validation Files" placeholder="Label">
+                        <input type="text" class="form-input file-row-url" placeholder="SharePoint URL">
+                        <button type="button" class="btn-remove-row" title="Remove row">&times;</button>
+                    </div>
+                    <div class="file-row">
+                        <span class="file-row-num">3.</span>
+                        <input type="text" class="form-input file-row-label" value="FBDI File(s)" placeholder="Label">
+                        <input type="text" class="form-input file-row-url" placeholder="SharePoint URL">
+                        <button type="button" class="btn-remove-row" title="Remove row">&times;</button>
+                    </div>
+                </div>
+                <button type="button" class="btn-add-row" id="addFileRow">+ Add File Location</button>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">
+                    Errors / Fallout Notes
+                    <span class="form-label-hint">(optional)</span>
+                </label>
+                <textarea class="form-textarea" id="errorsFallout"
+                          placeholder="Missing items, known issues, records excluded..."></textarea>
+            </div>
+        </div>
+
+        <!-- Right: Preview Panel -->
+        <div class="panel-preview" id="previewPanel">
+            <div class="subject-bar">
+                <div class="subject-label">Subject Line</div>
+                <div class="subject-row">
+                    <span class="subject-text" id="subjectText"></span>
+                    <button type="button" class="btn-copy" id="copySubject">Copy Subject</button>
+                </div>
+            </div>
+            <div class="preview-container">
+                <iframe class="preview-frame" id="previewFrame" sandbox="allow-same-origin" title="Email preview"></iframe>
+            </div>
+            <div class="copy-bar">
+                <button type="button" class="btn-copy-email" id="copyEmail">Copy Email HTML</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
+
+    <script>
+    /* ═══════════════════════════════════════════════
+       Cycle Dropdown / Custom Toggle
+       ═══════════════════════════════════════════════ */
+    const cycleSelect = document.getElementById('cycleSelect');
+    const cycleCustom = document.getElementById('cycleCustom');
+    const cycleToggle = document.getElementById('cycleToggle');
+
+    cycleSelect.addEventListener('change', () => {
+        if (cycleSelect.value === '__other__') {
+            cycleSelect.style.display = 'none';
+            cycleCustom.style.display = '';
+            cycleToggle.style.display = '';
+            cycleCustom.focus();
+        }
+        updatePreview();
+    });
+
+    cycleToggle.addEventListener('click', () => {
+        cycleSelect.value = '';
+        cycleSelect.style.display = '';
+        cycleCustom.style.display = 'none';
+        cycleCustom.value = '';
+        cycleToggle.style.display = 'none';
+        updatePreview();
+    });
+
+    cycleCustom.addEventListener('input', updatePreview);
+
+    function getCycleValue() {
+        if (cycleSelect.style.display === 'none') {
+            return cycleCustom.value.trim();
+        }
+        const val = cycleSelect.value;
+        return val === '__other__' ? '' : val;
+    }
+
+    /* ═══════════════════════════════════════════════
+       File Location Rows
+       ═══════════════════════════════════════════════ */
+    const fileLocations = document.getElementById('fileLocations');
+    const addFileRowBtn = document.getElementById('addFileRow');
+
+    function renumberFileRows() {
+        const rows = fileLocations.querySelectorAll('.file-row');
+        rows.forEach((row, i) => {
+            row.querySelector('.file-row-num').textContent = (i + 1) + '.';
+            const removeBtn = row.querySelector('.btn-remove-row');
+            if (removeBtn) {
+                removeBtn.style.display = rows.length > 1 ? '' : 'none';
+            }
+        });
+    }
+
+    function addRemoveHandler(btn) {
+        btn.addEventListener('click', () => {
+            btn.closest('.file-row').remove();
+            renumberFileRows();
+            updatePreview();
+        });
+    }
+
+    // Wire up initial rows
+    fileLocations.querySelectorAll('.btn-remove-row').forEach(addRemoveHandler);
+    fileLocations.querySelectorAll('input').forEach(el => el.addEventListener('input', updatePreview));
+    renumberFileRows();
+
+    addFileRowBtn.addEventListener('click', () => {
+        const row = document.createElement('div');
+        row.className = 'file-row';
+        row.innerHTML = `
+            <span class="file-row-num"></span>
+            <input type="text" class="form-input file-row-label" value="" placeholder="Label">
+            <input type="text" class="form-input file-row-url" value="" placeholder="SharePoint URL">
+            <button type="button" class="btn-remove-row" title="Remove row">&times;</button>
+        `;
+        addRemoveHandler(row.querySelector('.btn-remove-row'));
+        row.querySelectorAll('input').forEach(el => el.addEventListener('input', updatePreview));
+        fileLocations.appendChild(row);
+        renumberFileRows();
+        row.querySelector('.file-row-label').focus();
+        updatePreview();
+    });
+
+    /* ═══════════════════════════════════════════════
+       Wire All Inputs to Live Preview
+       ═══════════════════════════════════════════════ */
+    document.getElementById('conversionName').addEventListener('input', updatePreview);
+    document.getElementById('summaryChanges').addEventListener('input', updatePreview);
+    document.getElementById('errorsFallout').addEventListener('input', updatePreview);
+
+    /* ═══════════════════════════════════════════════
+       Email HTML Generation
+       ═══════════════════════════════════════════════ */
+    function escapeHtml(str) {
+        const el = document.createElement('span');
+        el.textContent = str;
+        return el.innerHTML;
+    }
+
+    function getFileLocations() {
+        const rows = fileLocations.querySelectorAll('.file-row');
+        const result = [];
+        rows.forEach(row => {
+            const label = row.querySelector('.file-row-label').value.trim();
+            const url = row.querySelector('.file-row-url').value.trim();
+            if (label || url) {
+                result.push({ label: label || 'Untitled', url });
+            }
+        });
+        return result;
+    }
+
+    function generateSubjectLine() {
+        const name = document.getElementById('conversionName').value.trim();
+        const cycle = getCycleValue();
+        return 'Wave 2C ' + (name || '[Conversion Name]') + ' Files Posted - ' + (cycle || '[Cycle]');
+    }
+
+    function generateEmailHTML() {
+        const name = document.getElementById('conversionName').value.trim();
+        const cycle = getCycleValue();
+        const summary = document.getElementById('summaryChanges').value.trim();
+        const errors = document.getElementById('errorsFallout').value.trim();
+        const files = getFileLocations();
+
+        const namePart = escapeHtml(name || '[Conversion Name]');
+        const cyclePart = escapeHtml(cycle || '[Cycle]');
+
+        const td = 'font-family: Arial, sans-serif; font-size: 14px; color: #333333; line-height: 1.6;';
+        const link = 'color: #1a73e8; text-decoration: underline; font-family: Arial, sans-serif; font-size: 14px;';
+        const sectionHead = 'font-family: Arial, sans-serif; font-size: 15px; font-weight: bold; color: #0D2C71;';
+        const spacer = '<tr><td height="16" style="font-size: 1px; line-height: 1px;">&nbsp;</td></tr>';
+        const smallSpacer = '<tr><td height="8" style="font-size: 1px; line-height: 1px;">&nbsp;</td></tr>';
+
+        // File locations rows
+        let filesHtml = '';
+        files.forEach((f, i) => {
+            const labelHtml = escapeHtml(f.label);
+            const content = f.url
+                ? '<a href="' + escapeHtml(f.url) + '" style="' + link + '">' + labelHtml + '</a>'
+                : '<span style="font-family: Arial, sans-serif; font-size: 14px; color: #333333;">' + labelHtml + '</span>';
+            filesHtml += '<tr><td style="' + td + ' padding: 3px 0;">' + (i + 1) + '.&nbsp;&nbsp;' + content + '</td></tr>';
+        });
+
+        // Summary section — omit entirely if empty
+        let summarySection = '';
+        if (summary) {
+            const lines = escapeHtml(summary).replace(/\n/g, '<br />');
+            summarySection = spacer +
+                '<tr><td style="' + sectionHead + ' padding: 0;">Summary of Changes</td></tr>' +
+                smallSpacer +
+                '<tr><td style="' + td + ' padding: 0;">' + lines + '</td></tr>';
+        }
+
+        // Errors/fallout section — omit entirely if empty
+        let errorsSection = '';
+        if (errors) {
+            const lines = escapeHtml(errors).replace(/\n/g, '<br />');
+            errorsSection = spacer +
+                '<tr><td style="' + sectionHead + ' padding: 0;">Errors / Fallout Notes</td></tr>' +
+                smallSpacer +
+                '<tr><td style="padding: 0;">' +
+                    '<table width="100%" cellpadding="0" cellspacing="0" border="0" role="presentation">' +
+                        '<tr>' +
+                            '<td width="3" bgcolor="#0D2C71" style="font-size: 1px; line-height: 1px;">&nbsp;</td>' +
+                            '<td width="12" style="font-size: 1px; line-height: 1px;">&nbsp;</td>' +
+                            '<td bgcolor="#f0f4fa" style="' + td + ' padding: 10px 14px;">' + lines + '</td>' +
+                        '</tr>' +
+                    '</table>' +
+                '</td></tr>';
+        }
+
+        return '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">\n' +
+'<html xmlns="http://www.w3.org/1999/xhtml">\n' +
+'<head>\n' +
+'    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />\n' +
+'    <meta name="viewport" content="width=device-width, initial-scale=1.0" />\n' +
+'    <title>' + escapeHtml(generateSubjectLine()) + '</title>\n' +
+'</head>\n' +
+'<body style="margin: 0; padding: 0; background-color: #ffffff;">\n' +
+'    <table width="600" align="center" cellpadding="0" cellspacing="0" border="0" role="presentation" style="margin: 0 auto;">\n' +
+'        <tr><td bgcolor="#0D2C71" height="4" style="font-size: 1px; line-height: 1px;">&nbsp;</td></tr>\n' +
+'        <tr><td height="20" style="font-size: 1px; line-height: 1px;">&nbsp;</td></tr>\n' +
+'        <tr><td style="' + td + ' padding: 0;">Hi All,</td></tr>\n' +
+'        <tr><td height="12" style="font-size: 1px; line-height: 1px;">&nbsp;</td></tr>\n' +
+'        <tr><td style="' + td + ' padding: 0;">Wave 2C ' + namePart + ' ' + cyclePart + ' files are now posted to SharePoint for pre-load validation.</td></tr>\n' +
+         summarySection + '\n' +
+         spacer + '\n' +
+'        <tr><td style="' + sectionHead + ' padding: 0;">File Locations</td></tr>\n' +
+         smallSpacer + '\n' +
+'        <tr><td style="padding: 0;"><table width="100%" cellpadding="0" cellspacing="0" border="0" role="presentation">' + filesHtml + '</table></td></tr>\n' +
+         errorsSection + '\n' +
+'        <tr><td height="20" style="font-size: 1px; line-height: 1px;">&nbsp;</td></tr>\n' +
+'        <tr><td style="' + td + ' padding: 0;">Thank you.</td></tr>\n' +
+'        <tr><td height="8" style="font-size: 1px; line-height: 1px;">&nbsp;</td></tr>\n' +
+'    </table>\n' +
+'</body>\n' +
+'</html>';
+    }
+
+    /* ═══════════════════════════════════════════════
+       Live Preview
+       ═══════════════════════════════════════════════ */
+    function updatePreview() {
+        document.getElementById('subjectText').textContent = generateSubjectLine();
+        document.getElementById('previewFrame').srcdoc = generateEmailHTML();
+    }
+
+    // Initial render
+    updatePreview();
+
+    /* ═══════════════════════════════════════════════
+       Toast
+       ═══════════════════════════════════════════════ */
+    let toastTimer = null;
+    function showToast(message) {
+        const toast = document.getElementById('toast');
+        toast.textContent = message;
+        toast.classList.add('show');
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => toast.classList.remove('show'), 2000);
+    }
+
+    /* ═══════════════════════════════════════════════
+       Clipboard — Subject Line
+       ═══════════════════════════════════════════════ */
+    document.getElementById('copySubject').addEventListener('click', async () => {
+        const subject = generateSubjectLine();
+        try {
+            await navigator.clipboard.writeText(subject);
+            showToast('Subject line copied!');
+        } catch {
+            // Fallback for file:// or older browsers
+            const ta = document.createElement('textarea');
+            ta.value = subject;
+            ta.style.cssText = 'position:fixed;opacity:0;';
+            document.body.appendChild(ta);
+            ta.select();
+            try {
+                document.execCommand('copy');
+                showToast('Subject line copied!');
+            } catch {
+                showToast('Copy failed \u2014 select and Ctrl+C');
+            }
+            document.body.removeChild(ta);
+        }
+    });
+
+    /* ═══════════════════════════════════════════════
+       Clipboard — Email HTML (Rich HTML)
+       ═══════════════════════════════════════════════ */
+    document.getElementById('copyEmail').addEventListener('click', async () => {
+        const html = generateEmailHTML();
+        try {
+            const blob = new Blob([html], { type: 'text/html' });
+            const item = new ClipboardItem({ 'text/html': blob });
+            await navigator.clipboard.write([item]);
+            showToast('Email HTML copied!');
+        } catch {
+            // Fallback: render into hidden div and use execCommand
+            const container = document.createElement('div');
+            container.innerHTML = html;
+            container.style.cssText = 'position:fixed;opacity:0;pointer-events:none;';
+            document.body.appendChild(container);
+            const range = document.createRange();
+            range.selectNodeContents(container);
+            const sel = window.getSelection();
+            sel.removeAllRanges();
+            sel.addRange(range);
+            try {
+                document.execCommand('copy');
+                showToast('Email HTML copied!');
+            } catch {
+                showToast('Copy failed \u2014 try Ctrl+C from preview');
+            }
+            sel.removeAllRanges();
+            document.body.removeChild(container);
+        }
+    });
+    </script>
+</body>
+</html>

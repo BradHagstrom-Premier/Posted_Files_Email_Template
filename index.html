@@ -800,6 +800,43 @@
     });
 
     /* ═══════════════════════════════════════════════
+       Recon Status Toggle
+       ═══════════════════════════════════════════════ */
+    let reconStatus = 'clean'; // 'clean' | 'issues'
+
+    const statusCleanBtn = document.getElementById('statusClean');
+    const statusIssuesBtn = document.getElementById('statusIssues');
+    const reconStatusText = document.getElementById('reconStatusText');
+
+    statusCleanBtn.addEventListener('click', () => {
+        if (reconStatus === 'clean') return;
+        reconStatus = 'clean';
+        statusCleanBtn.classList.add('active-clean');
+        statusCleanBtn.classList.remove('active-issues');
+        statusIssuesBtn.classList.remove('active-clean', 'active-issues');
+        reconStatusText.value = 'All records loaded as expected. No discrepancies found.';
+        reconStatusText.placeholder = '';
+        updatePreview();
+    });
+
+    statusIssuesBtn.addEventListener('click', () => {
+        if (reconStatus === 'issues') return;
+        reconStatus = 'issues';
+        statusIssuesBtn.classList.add('active-issues');
+        statusIssuesBtn.classList.remove('active-clean');
+        statusCleanBtn.classList.remove('active-clean', 'active-issues');
+        if (reconStatusText.value === 'All records loaded as expected. No discrepancies found.') {
+            reconStatusText.value = '';
+        }
+        reconStatusText.placeholder = 'Describe the discrepancies...';
+        updatePreview();
+    });
+
+    document.getElementById('reconReportLabel').addEventListener('input', updatePreview);
+    document.getElementById('reconReportUrl').addEventListener('input', updatePreview);
+    reconStatusText.addEventListener('input', updatePreview);
+
+    /* ═══════════════════════════════════════════════
        Cycle Dropdown / Custom Toggle
        ═══════════════════════════════════════════════ */
     const cycleSelect = document.getElementById('cycleSelect');

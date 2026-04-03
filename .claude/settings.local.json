@@ -3,7 +3,10 @@
     "allow": [
       "Skill(claude-md-management:revise-claude-md)",
       "Skill(humanizer-skill:humanizer)",
-      "Bash(start index.html)"
+      "Bash(start index.html)",
+      "Skill(humanizer)",
+      "Bash(bash:*)",
+      "Bash(cat \"C:/Users/10193/Definian/Posted_Files_Email_Template/.superpowers/brainstorm/\"*/state/server-info)"
     ]
   }
 }

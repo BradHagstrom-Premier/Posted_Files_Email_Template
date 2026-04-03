@@ -927,6 +927,76 @@
     document.getElementById('errorsFallout').addEventListener('input', updatePreview);
 
     /* ═══════════════════════════════════════════════
+       Recon Email Generation
+       ═══════════════════════════════════════════════ */
+    function generateReconSubjectLine() {
+        const name = document.getElementById('conversionName').value.trim();
+        const cycle = getCycleValue();
+        return 'Wave 2C ' + (name || '[Conversion Name]') + ' Recon Report - ' + (cycle || '[Cycle]');
+    }
+
+    function generateReconFileLocationsHTML() {
+        const label = document.getElementById('reconReportLabel').value.trim() || 'Premier Recon Reports';
+        const url = document.getElementById('reconReportUrl').value.trim();
+        const td = 'font-family: Arial, sans-serif; font-size: 14px; color: #333333; line-height: 1.6;';
+        const link = 'color: #1a73e8; text-decoration: underline; font-family: Arial, sans-serif; font-size: 14px;';
+        const sectionHead = 'font-family: Arial, sans-serif; font-size: 15px; font-weight: bold; color: #0D2C71;';
+        const smallSpacer = '<tr><td height="8" style="font-size: 1px; line-height: 1px;">&nbsp;</td></tr>';
+
+        const content = url
+            ? '<a href="' + escapeHtml(url) + '" style="' + link + '">' + escapeHtml(label) + '</a>'
+            : '<span style="' + td + '">' + escapeHtml(label) + '</span>';
+
+        return '<table cellpadding="0" cellspacing="0" border="0" role="presentation">' +
+            '<tr><td style="' + sectionHead + ' padding: 0;">Recon Report Location</td></tr>' +
+            smallSpacer +
+            '<tr><td style="' + td + ' padding: 3px 0;">' + content + '</td></tr>' +
+            '</table>';
+    }
+
+    function generateReconEmailHTML() {
+        const name = document.getElementById('conversionName').value.trim();
+        const label = document.getElementById('reconReportLabel').value.trim() || 'Premier Recon Reports';
+        const url = document.getElementById('reconReportUrl').value.trim();
+        const statusText = document.getElementById('reconStatusText').value.trim();
+
+        const namePart = escapeHtml(name || '[Conversion Name]');
+        const td = 'font-family: Arial, sans-serif; font-size: 14px; color: #333333; line-height: 1.6;';
+        const link = 'color: #1a73e8; text-decoration: underline; font-family: Arial, sans-serif; font-size: 14px;';
+        const spacer = '<tr><td height="16" style="font-size: 1px; line-height: 1px;">&nbsp;</td></tr>';
+
+        const folderContent = url
+            ? '<a href="' + escapeHtml(url) + '" style="' + link + '">' + escapeHtml(label) + '</a>'
+            : escapeHtml(label);
+
+        const statusLines = statusText
+            ? escapeHtml(statusText).replace(/\n/g, '<br />')
+            : '';
+
+        return '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">\n' +
+'<html xmlns="http://www.w3.org/1999/xhtml">\n' +
+'<head>\n' +
+'    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />\n' +
+'    <meta name="viewport" content="width=device-width, initial-scale=1.0" />\n' +
+'    <title>' + escapeHtml(generateReconSubjectLine()) + '</title>\n' +
+'</head>\n' +
+'<body style="margin: 0; padding: 0; background-color: #ffffff;">\n' +
+'    <table width="600" align="left" cellpadding="0" cellspacing="0" border="0" role="presentation" style="margin: 0;">\n' +
+'        <tr><td bgcolor="#0D2C71" height="4" style="font-size: 1px; line-height: 1px;">&nbsp;</td></tr>\n' +
+'        <tr><td height="20" style="font-size: 1px; line-height: 1px;">&nbsp;</td></tr>\n' +
+'        <tr><td style="' + td + ' padding: 0;">Hi team,</td></tr>\n' +
+'        <tr><td height="12" style="font-size: 1px; line-height: 1px;">&nbsp;</td></tr>\n' +
+'        <tr><td style="' + td + ' padding: 0;">' + namePart + ' Recon Reports have been posted to SharePoint: ' + folderContent + '.</td></tr>\n' +
+(statusLines ? spacer + '\n        <tr><td style="' + td + ' padding: 0;">' + statusLines + '</td></tr>\n' : '') +
+'        <tr><td height="20" style="font-size: 1px; line-height: 1px;">&nbsp;</td></tr>\n' +
+'        <tr><td style="' + td + ' padding: 0;">Thank you.</td></tr>\n' +
+'        <tr><td height="8" style="font-size: 1px; line-height: 1px;">&nbsp;</td></tr>\n' +
+'    </table>\n' +
+'</body>\n' +
+'</html>';
+    }
+
+    /* ═══════════════════════════════════════════════
        Email HTML Generation
        ═══════════════════════════════════════════════ */
     function escapeHtml(str) {

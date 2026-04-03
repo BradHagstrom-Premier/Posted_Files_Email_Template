@@ -1019,12 +1019,14 @@
     }
 
     function generateSubjectLine() {
+        if (activeMode === 'recon') return generateReconSubjectLine();
         const name = document.getElementById('conversionName').value.trim();
         const cycle = getCycleValue();
         return 'Wave 2C ' + (name || '[Conversion Name]') + ' Files Posted - ' + (cycle || '[Cycle]');
     }
 
     function generateEmailHTML() {
+        if (activeMode === 'recon') return generateReconEmailHTML();
         const name = document.getElementById('conversionName').value.trim();
         const cycle = getCycleValue();
         const summary = document.getElementById('summaryChanges').value.trim();
@@ -1181,7 +1183,7 @@
        Clipboard — File Locations Only (Rich HTML)
        ═══════════════════════════════════════════════ */
     document.getElementById('copyLocations').addEventListener('click', async () => {
-        const html = generateFileLocationsHTML();
+        const html = activeMode === 'recon' ? generateReconFileLocationsHTML() : generateFileLocationsHTML();
         try {
             const blob = new Blob([html], { type: 'text/html' });
             const item = new ClipboardItem({ 'text/html': blob });

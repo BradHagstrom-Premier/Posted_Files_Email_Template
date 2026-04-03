@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Posted Files Email Generator</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         /* ───────────────────────────────────────────
            Reset & Custom Properties
@@ -36,7 +38,7 @@
 
         html, body {
             height: 100%;
-            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            font-family: 'DM Sans', 'Segoe UI', system-ui, -apple-system, sans-serif;
             background: var(--bg);
             color: var(--text);
             -webkit-font-smoothing: antialiased;
@@ -253,6 +255,106 @@
         @keyframes rowSlideIn {
             from { opacity: 0; transform: translateY(-6px); }
             to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ───────────────────────────────────────────
+           Mode Tabs
+           ─────────────────────────────────────────── */
+        .mode-tabs {
+            display: flex;
+            gap: 2px;
+            margin-bottom: 24px;
+            background: var(--blue-muted);
+            border-radius: var(--radius);
+            padding: 3px;
+        }
+
+        .mode-tab {
+            flex: 1;
+            padding: 8px 12px;
+            font-size: 12.5px;
+            font-weight: 600;
+            text-align: center;
+            cursor: pointer;
+            border: none;
+            border-radius: 6px;
+            background: transparent;
+            color: var(--text-secondary);
+            transition: background var(--transition), color var(--transition), box-shadow var(--transition);
+            font-family: inherit;
+            letter-spacing: 0.2px;
+        }
+
+        .mode-tab.active {
+            background: var(--blue);
+            color: #ffffff;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .mode-tab:hover:not(.active) {
+            background: rgba(13, 44, 113, 0.12);
+            color: var(--blue);
+        }
+
+        /* ───────────────────────────────────────────
+           Mode Fields Transition
+           ─────────────────────────────────────────── */
+        .mode-fields {
+            animation: fieldsFadeIn 0.12s ease;
+        }
+
+        @keyframes fieldsFadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ───────────────────────────────────────────
+           Status Toggle (Clean / Issues Found)
+           ─────────────────────────────────────────── */
+        .status-toggle {
+            display: flex;
+            gap: 2px;
+            background: var(--blue-muted);
+            border-radius: var(--radius);
+            padding: 3px;
+            margin-bottom: 14px;
+        }
+
+        .status-toggle-btn {
+            flex: 1;
+            padding: 8px 12px;
+            font-size: 12.5px;
+            font-weight: 600;
+            text-align: center;
+            cursor: pointer;
+            border: none;
+            border-radius: 6px;
+            background: transparent;
+            color: var(--text-secondary);
+            transition: background var(--transition), color var(--transition), box-shadow var(--transition);
+            font-family: inherit;
+            letter-spacing: 0.2px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .status-toggle-btn.active-clean {
+            background: var(--green);
+            color: #ffffff;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .status-toggle-btn.active-issues {
+            background: var(--blue);
+            color: #ffffff;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .status-toggle-btn:hover:not(.active-clean):not(.active-issues) {
+            background: rgba(13, 44, 113, 0.12);
+            color: var(--blue);
         }
 
         .file-row-num {

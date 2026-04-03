@@ -627,7 +627,11 @@
 
         <!-- Left: Form Panel -->
         <div class="panel-form" id="formPanel">
-            <div class="form-section-title">Email Details</div>
+            <!-- Mode Tabs -->
+            <div class="mode-tabs">
+                <button type="button" class="mode-tab active" id="tabPostedFiles">Posted Files</button>
+                <button type="button" class="mode-tab" id="tabReconReport">Recon Report</button>
+            </div>
 
             <div class="form-group">
                 <label class="form-label" for="conversionName">Conversion Name</label>
@@ -654,6 +658,9 @@
                     <span class="cycle-custom-toggle" id="cycleToggle" style="display:none;">&larr; Back to dropdown</span>
                 </div>
             </div>
+
+            <!-- Posted Files specific fields -->
+            <div id="postedFilesFields" class="mode-fields">
 
             <div class="form-group">
                 <label class="form-label">
@@ -701,6 +708,36 @@
                 <textarea class="form-textarea" id="errorsFallout"
                           placeholder="Missing items, known issues, records excluded..."></textarea>
             </div>
+
+            </div><!-- /#postedFilesFields -->
+
+            <!-- Recon Report specific fields -->
+            <div id="reconFields" class="mode-fields" style="display:none;">
+
+                <div class="form-group">
+                    <label class="form-label">Recon Report Location</label>
+                    <div class="file-rows-header">
+                        <span class="file-rows-header-label">Label</span>
+                        <span class="file-rows-header-url">SharePoint URL</span>
+                    </div>
+                    <div class="file-row">
+                        <span class="file-row-num" style="visibility:hidden;">1.</span>
+                        <input type="text" class="form-input file-row-label" id="reconReportLabel" value="Premier Recon Reports" placeholder="Label">
+                        <input type="text" class="form-input file-row-url" id="reconReportUrl" placeholder="SharePoint URL (optional)">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Status</label>
+                    <div class="status-toggle">
+                        <button type="button" class="status-toggle-btn active-clean" id="statusClean">&#10003; Clean</button>
+                        <button type="button" class="status-toggle-btn" id="statusIssues">&#9873; Issues Found</button>
+                    </div>
+                    <textarea class="form-textarea" id="reconStatusText" style="min-height:64px;" placeholder="Describe discrepancies...">All records loaded as expected. No discrepancies found.</textarea>
+                </div>
+
+            </div><!-- /#reconFields -->
+
         </div>
 
         <!-- Right: Preview Panel -->

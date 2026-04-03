@@ -390,6 +390,7 @@
             border-top: 1px solid var(--border);
             display: flex;
             justify-content: center;
+            gap: 10px;
             box-shadow: 0 -2px 8px rgba(0,0,0,0.04);
         }
 
@@ -403,8 +404,8 @@
             border-radius: var(--radius);
             cursor: pointer;
             transition: background var(--transition), transform 0.1s, box-shadow var(--transition);
-            width: 100%;
-            max-width: 420px;
+            flex: 1;
+            max-width: 300px;
             letter-spacing: 0.3px;
             box-shadow: var(--shadow-md);
         }
@@ -415,6 +416,30 @@
         }
 
         .btn-copy-email:active {
+            transform: scale(0.98);
+        }
+
+        .btn-copy-locations {
+            background: transparent;
+            color: var(--blue);
+            border: 2px solid var(--blue);
+            padding: 13px 20px;
+            font-size: 14px;
+            font-weight: 700;
+            border-radius: var(--radius);
+            cursor: pointer;
+            transition: background var(--transition), transform 0.1s, box-shadow var(--transition);
+            flex: 0 0 auto;
+            letter-spacing: 0.3px;
+            white-space: nowrap;
+        }
+
+        .btn-copy-locations:hover {
+            background: var(--blue-muted);
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-copy-locations:active {
             transform: scale(0.98);
         }
 
@@ -589,6 +614,7 @@
                 <iframe class="preview-frame" id="previewFrame" sandbox="allow-same-origin" title="Email preview"></iframe>
             </div>
             <div class="copy-bar">
+                <button type="button" class="btn-copy-locations" id="copyLocations">Copy File Locations</button>
                 <button type="button" class="btn-copy-email" id="copyEmail">Copy Email HTML</button>
             </div>
         </div>
@@ -798,6 +824,29 @@
 '</html>';
     }
 
+    function generateFileLocationsHTML() {
+        const files = getFileLocations();
+        const td = 'font-family: Arial, sans-serif; font-size: 14px; color: #333333; line-height: 1.6;';
+        const link = 'color: #1a73e8; text-decoration: underline; font-family: Arial, sans-serif; font-size: 14px;';
+        const sectionHead = 'font-family: Arial, sans-serif; font-size: 15px; font-weight: bold; color: #0D2C71;';
+        const smallSpacer = '<tr><td height="8" style="font-size: 1px; line-height: 1px;">&nbsp;</td></tr>';
+
+        let filesHtml = '';
+        files.forEach((f, i) => {
+            const labelHtml = escapeHtml(f.label);
+            const content = f.url
+                ? '<a href="' + escapeHtml(f.url) + '" style="' + link + '">' + labelHtml + '</a>'
+                : '<span style="font-family: Arial, sans-serif; font-size: 14px; color: #333333;">' + labelHtml + '</span>';
+            filesHtml += '<tr><td style="' + td + ' padding: 3px 0;">' + (i + 1) + '.&nbsp;&nbsp;' + content + '</td></tr>';
+        });
+
+        return '<table cellpadding="0" cellspacing="0" border="0" role="presentation">' +
+            '<tr><td style="' + sectionHead + ' padding: 0;">File Locations</td></tr>' +
+            smallSpacer +
+            '<tr><td style="padding: 0;"><table width="100%" cellpadding="0" cellspacing="0" border="0" role="presentation">' + filesHtml + '</table></td></tr>' +
+            '</table>';
+    }
+
     /* ═══════════════════════════════════════════════
        Live Preview
        ═══════════════════════════════════════════════ */
@@ -843,6 +892,37 @@
                 showToast('Copy failed \u2014 select and Ctrl+C');
             }
             document.body.removeChild(ta);
+        }
+    });
+
+    /* ═══════════════════════════════════════════════
+       Clipboard — File Locations Only (Rich HTML)
+       ═══════════════════════════════════════════════ */
+    document.getElementById('copyLocations').addEventListener('click', async () => {
+        const html = generateFileLocationsHTML();
+        try {
+            const blob = new Blob([html], { type: 'text/html' });
+            const item = new ClipboardItem({ 'text/html': blob });
+            await navigator.clipboard.write([item]);
+            showToast('File locations copied!');
+        } catch {
+            const container = document.createElement('div');
+            container.innerHTML = html;
+            container.style.cssText = 'position:fixed;opacity:0;pointer-events:none;';
+            document.body.appendChild(container);
+            const range = document.createRange();
+            range.selectNodeContents(container);
+            const sel = window.getSelection();
+            sel.removeAllRanges();
+            sel.addRange(range);
+            try {
+                document.execCommand('copy');
+                showToast('File locations copied!');
+            } catch {
+                showToast('Copy failed \u2014 try Ctrl+C from preview');
+            }
+            sel.removeAllRanges();
+            document.body.removeChild(container);
         }
     });
 

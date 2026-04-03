@@ -764,6 +764,42 @@
 
     <script>
     /* ═══════════════════════════════════════════════
+       Mode Tabs
+       ═══════════════════════════════════════════════ */
+    let activeMode = 'posted'; // 'posted' | 'recon'
+
+    const tabPostedFiles = document.getElementById('tabPostedFiles');
+    const tabReconReport = document.getElementById('tabReconReport');
+    const postedFilesFields = document.getElementById('postedFilesFields');
+    const reconFields = document.getElementById('reconFields');
+
+    tabPostedFiles.addEventListener('click', () => {
+        if (activeMode === 'posted') return;
+        activeMode = 'posted';
+        tabPostedFiles.classList.add('active');
+        tabReconReport.classList.remove('active');
+        postedFilesFields.style.display = '';
+        reconFields.style.display = 'none';
+        postedFilesFields.classList.remove('mode-fields');
+        void postedFilesFields.offsetWidth;
+        postedFilesFields.classList.add('mode-fields');
+        updatePreview();
+    });
+
+    tabReconReport.addEventListener('click', () => {
+        if (activeMode === 'recon') return;
+        activeMode = 'recon';
+        tabReconReport.classList.add('active');
+        tabPostedFiles.classList.remove('active');
+        reconFields.style.display = '';
+        postedFilesFields.style.display = 'none';
+        reconFields.classList.remove('mode-fields');
+        void reconFields.offsetWidth;
+        reconFields.classList.add('mode-fields');
+        updatePreview();
+    });
+
+    /* ═══════════════════════════════════════════════
        Cycle Dropdown / Custom Toggle
        ═══════════════════════════════════════════════ */
     const cycleSelect = document.getElementById('cycleSelect');

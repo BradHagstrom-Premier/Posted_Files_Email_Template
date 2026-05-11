@@ -1,0 +1,195 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-05-11T00:00:00Z",
+  "title": "Design System: Posted Files Email Generator",
+  "extensions": {
+    "colorMeta": {
+      "brand-blue": {
+        "role": "primary",
+        "displayName": "Command Blue",
+        "canonical": "#0D2C71",
+        "tonalRamp": ["#020A1D", "#061540", "#0D2C71", "#1A3D8F", "#3460B8", "#7096D1", "#B3C7E8", "#E6EDF8"]
+      },
+      "brand-blue-hover": {
+        "role": "primary",
+        "displayName": "Command Blue Hover",
+        "canonical": "#1A3D8F",
+        "tonalRamp": ["#030D24", "#0A1F4F", "#1A3D8F", "#2855B8", "#5080D1", "#90AEDE", "#C4D5EF", "#EBF0FA"]
+      },
+      "brand-green": {
+        "role": "secondary",
+        "displayName": "Signal Green",
+        "canonical": "#00AB63",
+        "tonalRamp": ["#002918", "#004D2E", "#007848", "#009955", "#00AB63", "#3DC47E", "#8EDBA8", "#D1F0DC"]
+      },
+      "brand-green-hover": {
+        "role": "secondary",
+        "displayName": "Signal Green Hover",
+        "canonical": "#009955",
+        "tonalRamp": ["#002314", "#004227", "#006840", "#009955", "#22B56F", "#6ECB92", "#B2E2C5", "#E5F6EC"]
+      },
+      "midnight": {
+        "role": "tertiary",
+        "displayName": "Midnight Charter",
+        "canonical": "#02072D",
+        "tonalRamp": ["#010310", "#02072D", "#060F52", "#101E7A", "#2A3D9E", "#6070C0", "#A8B2DC", "#E3E6F5"]
+      },
+      "slate-divider": {
+        "role": "tertiary",
+        "displayName": "Slate Divider",
+        "canonical": "#3C405B",
+        "tonalRamp": ["#0D0F1A", "#1E2136", "#3C405B", "#555A7A", "#7A7F9C", "#A8ACBD", "#D0D2DC", "#EEEEF4"]
+      },
+      "blueprint-fog": {
+        "role": "neutral",
+        "displayName": "Blueprint Fog",
+        "canonical": "#D8D7EE",
+        "tonalRamp": ["#18172E", "#2E2C5A", "#4E4C8A", "#7876B0", "#A09EC8", "#C4C3DC", "#D8D7EE", "#F2F2F9"]
+      },
+      "surface-bg": {
+        "role": "neutral",
+        "displayName": "Cool Field",
+        "canonical": "#F0F2F5",
+        "tonalRamp": ["#8A8F9A", "#A4A8B0", "#B8BBC3", "#CACDD4", "#D8DADF", "#E5E7EB", "#F0F2F5", "#FAFBFC"]
+      },
+      "text-primary": {
+        "role": "neutral",
+        "displayName": "Deep Text",
+        "canonical": "#1A1A2E",
+        "tonalRamp": ["#0A0A14", "#1A1A2E", "#2E2E4A", "#444466", "#6A6A88", "#9898AA", "#C4C4CC", "#EBEBEE"]
+      },
+      "text-secondary": {
+        "role": "neutral",
+        "displayName": "Muted Text",
+        "canonical": "#6B7280",
+        "tonalRamp": ["#1E2128", "#343A45", "#4D5563", "#6B7280", "#8D96A2", "#AFBAC4", "#CFD5DC", "#EEF0F3"]
+      },
+      "border-default": {
+        "role": "neutral",
+        "displayName": "Structure Line",
+        "canonical": "#DDE1E7",
+        "tonalRamp": ["#80878F", "#9BA1A8", "#B4BAC1", "#CAD0D6", "#D6DADF", "#DDE1E7", "#EAECEF", "#F6F7F8"]
+      },
+      "error": {
+        "role": "error",
+        "displayName": "Danger Red",
+        "canonical": "#DC2626",
+        "tonalRamp": ["#420000", "#7A0000", "#B91C1C", "#DC2626", "#EF4444", "#FCA5A5", "#FECACA", "#FEF2F2"]
+      }
+    },
+    "typographyMeta": {
+      "headline": { "displayName": "Headline", "purpose": "Application header title. Single instance." },
+      "title": { "displayName": "Title", "purpose": "Primary action buttons and subject line display." },
+      "body": { "displayName": "Body", "purpose": "Form inputs, content, textarea text." },
+      "label": { "displayName": "Label", "purpose": "Form field labels, tab and toggle text." },
+      "meta": { "displayName": "Meta", "purpose": "Section delineators. Uppercase + tracked. Do not use elsewhere." }
+    },
+    "shadows": [
+      { "name": "ambient-low", "value": "0 1px 3px rgba(0,0,0,0.06)", "purpose": "Resting interactive elements; small copy buttons; active tabs." },
+      { "name": "structural-medium", "value": "0 4px 12px rgba(0,0,0,0.08)", "purpose": "Preview iframe; hover state on primary buttons; elevated panels." },
+      { "name": "action-high", "value": "0 8px 24px rgba(0,0,0,0.10)", "purpose": "Primary action hover (Copy Email) only." },
+      { "name": "toast", "value": "0 6px 20px rgba(0, 171, 99, 0.30)", "purpose": "Toast notification. Only colored shadow in the system." }
+    ],
+    "motion": [
+      { "name": "transition-base", "value": "0.18s ease", "purpose": "Universal UI transitions (border, background, color)." },
+      { "name": "row-slide-in", "value": "0.2s ease — opacity 0→1, translateY(-6px)→0", "purpose": "File row insertion animation. Rows enter from above." },
+      { "name": "fields-fade-in", "value": "0.12s ease — opacity 0→1, translateY(6px)→0", "purpose": "Mode fields transition on tab switch." },
+      { "name": "toast-enter", "value": "0.25s ease — opacity 0→1, translateY(16px)→0", "purpose": "Toast arrival. Always from below." }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button (Copy Email)",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "The single primary action. Decisive weight: 700, full padding, action-high shadow on hover.",
+      "html": "<button class=\"ds-btn-primary\">Copy Email</button>",
+      "css": ".ds-btn-primary { background: #0D2C71; color: #ffffff; border: none; padding: 13px 36px; font-size: 14px; font-weight: 700; font-family: 'DM Sans', 'Segoe UI', system-ui, sans-serif; letter-spacing: 0.3px; border-radius: 8px; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.08); transition: background 0.18s ease, box-shadow 0.18s ease, transform 0.1s; } .ds-btn-primary:hover { background: #1A3D8F; box-shadow: 0 8px 24px rgba(0,0,0,0.10); } .ds-btn-primary:active { transform: scale(0.98); } .ds-btn-primary:focus-visible { outline: 3px solid rgba(13,44,113,0.4); outline-offset: 2px; }"
+    },
+    {
+      "name": "Primary Button Small (Copy Subject)",
+      "kind": "button",
+      "refersTo": "button-primary-sm",
+      "description": "Compact primary action for inline use (copy subject line).",
+      "html": "<button class=\"ds-btn-primary-sm\">Copy</button>",
+      "css": ".ds-btn-primary-sm { background: #0D2C71; color: #ffffff; border: none; padding: 7px 15px; font-size: 12px; font-weight: 600; font-family: 'DM Sans', 'Segoe UI', system-ui, sans-serif; letter-spacing: 0.2px; border-radius: 5px; cursor: pointer; box-shadow: 0 1px 3px rgba(0,0,0,0.06); transition: background 0.18s ease, box-shadow 0.18s ease, transform 0.1s; } .ds-btn-primary-sm:hover { background: #1A3D8F; box-shadow: 0 4px 12px rgba(0,0,0,0.08); } .ds-btn-primary-sm:active { transform: scale(0.96); } .ds-btn-primary-sm:focus-visible { outline: 3px solid rgba(13,44,113,0.4); outline-offset: 2px; }"
+    },
+    {
+      "name": "Outline Button (Copy File Locations)",
+      "kind": "button",
+      "refersTo": "button-outline",
+      "description": "Secondary action. Communicates optionality alongside the primary.",
+      "html": "<button class=\"ds-btn-outline\">Copy File Locations</button>",
+      "css": ".ds-btn-outline { background: transparent; color: #0D2C71; border: 2px solid #0D2C71; padding: 13px 20px; font-size: 14px; font-weight: 700; font-family: 'DM Sans', 'Segoe UI', system-ui, sans-serif; letter-spacing: 0.3px; border-radius: 8px; cursor: pointer; transition: background 0.18s ease, box-shadow 0.18s ease, transform 0.1s; } .ds-btn-outline:hover { background: rgba(13,44,113,0.08); box-shadow: 0 4px 12px rgba(0,0,0,0.08); } .ds-btn-outline:active { transform: scale(0.98); } .ds-btn-outline:focus-visible { outline: 3px solid rgba(13,44,113,0.4); outline-offset: 2px; }"
+    },
+    {
+      "name": "Mode Tab (Active)",
+      "kind": "chip",
+      "refersTo": "tab-active",
+      "description": "Pill-style tab for switching between Posted Files and Recon Report modes.",
+      "html": "<div class=\"ds-tab-strip\"><button class=\"ds-tab ds-tab--active\">Posted Files</button><button class=\"ds-tab\">Recon Report</button></div>",
+      "css": ".ds-tab-strip { display: flex; gap: 2px; background: rgba(13,44,113,0.08); border-radius: 8px; padding: 3px; } .ds-tab { flex: 1; padding: 8px 12px; font-size: 12.5px; font-weight: 600; font-family: 'DM Sans', 'Segoe UI', system-ui, sans-serif; text-align: center; cursor: pointer; border: none; border-radius: 6px; background: transparent; color: #6B7280; letter-spacing: 0.2px; transition: background 0.18s ease, color 0.18s ease, box-shadow 0.18s ease; } .ds-tab--active { background: #0D2C71; color: #ffffff; box-shadow: 0 1px 3px rgba(0,0,0,0.06); } .ds-tab:hover:not(.ds-tab--active) { background: rgba(13,44,113,0.12); color: #0D2C71; }"
+    },
+    {
+      "name": "Form Input",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "Standard text input with blue focus ring. Precise 5px radius; not pill-shaped.",
+      "html": "<input class=\"ds-input\" type=\"text\" placeholder=\"Enter value\" />",
+      "css": ".ds-input { width: 100%; padding: 10px 13px; font-size: 13.5px; font-family: 'DM Sans', 'Segoe UI', system-ui, sans-serif; border: 1.5px solid #DDE1E7; border-radius: 5px; background: #ffffff; color: #1A1A2E; transition: border-color 0.18s ease, box-shadow 0.18s ease; } .ds-input::placeholder { color: #B0B7C3; } .ds-input:focus { outline: none; border-color: #0D2C71; box-shadow: 0 0 0 3px rgba(13,44,113,0.08); }"
+    },
+    {
+      "name": "Toast (Success)",
+      "kind": "custom",
+      "refersTo": null,
+      "description": "Success confirmation. Appears at bottom-center. Green glow shadow is the only colored shadow in the system.",
+      "html": "<div class=\"ds-toast\">Email copied to clipboard</div>",
+      "css": ".ds-toast { position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%) translateY(0); background: #00AB63; color: #ffffff; padding: 10px 28px; border-radius: 10px; font-size: 13.5px; font-family: 'DM Sans', 'Segoe UI', system-ui, sans-serif; font-weight: 600; letter-spacing: 0.2px; box-shadow: 0 6px 20px rgba(0,171,99,0.3); pointer-events: none; }"
+    },
+    {
+      "name": "Application Header",
+      "kind": "nav",
+      "refersTo": null,
+      "description": "52px fixed header. Definian Blue with Signal Green accent bar bottom-left. The pip is a calibrated brand mark.",
+      "html": "<header class=\"ds-header\"><div class=\"ds-header-pip\"></div><span class=\"ds-header-title\">Posted Files Email Generator</span><span class=\"ds-header-badge\">AWC</span></header>",
+      "css": ".ds-header { background: #0D2C71; color: #ffffff; padding: 0 28px; height: 52px; display: flex; align-items: center; gap: 12px; box-shadow: 0 2px 8px rgba(13,44,113,0.25); position: relative; } .ds-header::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, #00AB63 0%, #00AB63 30%, transparent 30%); } .ds-header-pip { width: 4px; height: 22px; background: #00AB63; border-radius: 2px; flex-shrink: 0; } .ds-header-title { font-size: 15px; font-weight: 600; font-family: 'DM Sans', 'Segoe UI', system-ui, sans-serif; letter-spacing: 0.2px; } .ds-header-badge { margin-left: auto; font-size: 11px; font-weight: 500; background: rgba(255,255,255,0.12); padding: 3px 10px; border-radius: 20px; letter-spacing: 0.3px; text-transform: uppercase; font-family: 'DM Sans', 'Segoe UI', system-ui, sans-serif; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Consultant's Instrument",
+    "overview": "This tool is a precision instrument. It does exactly one job, does it without waste, and looks like it was built by people who take their craft seriously. The interface does not call attention to itself; it frames the work. Every element earns its presence — if a color, shadow, or animation cannot be justified by function, it does not belong here.\n\nThe split-panel layout mirrors the consultant's mental model: inputs on the left, immediate output on the right. The visual weight deliberately centers on that preview frame. The form is the means; the generated email is the end. Nothing in the UI competes with that hierarchy.\n\nThis system explicitly rejects the vocabulary of startup SaaS tools: no gradient-heavy heroes, no micro-celebration animations for routine actions, no brand-as-wallpaper. It also rejects the opposite failure mode, the generic enterprise portal, which mistakes gray monotony for professionalism.",
+    "keyCharacteristics": [
+      "Single-font system (DM Sans) with strong weight and size contrast providing all hierarchy",
+      "Definian Blue as the primary authority color; Definian Green reserved for success and confirmation states",
+      "Flat surfaces at rest; structure revealed only through state changes",
+      "Uppercase tracked labels as section delineators, never for body content",
+      "Transitions are fast and directional (0.12s–0.25s ease-out), reflecting the tool's no-nonsense character"
+    ],
+    "rules": [
+      { "name": "The Two-Voice Rule", "body": "Blue speaks authority; Green speaks success. These roles are not interchangeable. Never use Green for primary actions or Blue for status confirmation.", "section": "colors" },
+      { "name": "The No-Tint Rule", "body": "Blue muted (rgba(13,44,113,0.08)) appears as a hover background and focus ring only. It is a state indicator, not a design surface.", "section": "colors" },
+      { "name": "The Uppercase Ceiling Rule", "body": "Uppercase tracked type exists only for section-level delineators. It must never appear on interactive elements, body content, or column data.", "section": "typography" },
+      { "name": "The Flat-By-Default Rule", "body": "Surfaces are flat at rest. A shadow appears only when a surface needs to announce state. Applying shadow-md to a card that is not interactive is prohibited.", "section": "elevation" }
+    ],
+    "dos": [
+      "Do use Command Blue (#0D2C71) for all primary actions, structural headers, active states, and focused inputs.",
+      "Do reserve Signal Green (#00AB63) exclusively for success states and confirmation feedback.",
+      "Do use uppercase tracked type only for structural section delineators. Never on buttons, data, or content.",
+      "Do keep shadows flat at rest. Static decorative shadows are prohibited.",
+      "Do use scale(0.96–0.98) on active button press for tactile feedback.",
+      "Do keep transitions at 0.12s–0.25s. Quick and decisive, not flowing.",
+      "Do use the Definian color guide values verbatim for any brand color."
+    ],
+    "donts": [
+      "Don't use gradient text (background-clip: text). Never in this system.",
+      "Don't introduce a second typeface. DM Sans covers the entire hierarchy.",
+      "Don't use Signal Green on interactive elements. A button should never be green.",
+      "Don't add decorative shadows to containers at rest.",
+      "Don't build anything that looks like a SaaS marketing tool.",
+      "Don't use the generic SharePoint/enterprise portal gray palette.",
+      "Don't add motion for motion's sake.",
+      "Don't add a border-left stripe as a colored accent.",
+      "Don't use align='left' on the outer email body table."
+    ]
+  }
+}

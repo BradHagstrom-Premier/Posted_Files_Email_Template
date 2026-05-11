@@ -14,7 +14,8 @@
 - Font stack: `Arial, sans-serif` on every text element
 - Spacing via `<tr><td height="N">&nbsp;</td></tr>` — not margin/padding
 - Accent bars via `<td bgcolor="...">` — not CSS borders
-- Links: `style="color: #1a73e8; text-decoration: underline;"`
+- Links: `style="color: #0D2C71; text-decoration: underline;"` — Definian Blue, not Google Material Blue
+- Recon Report accent bar color is conditional on `reconStatus`: `#00AB63` (Signal Green) when clean, `#0D2C71` (Definian Blue) when issues
 - XHTML Transitional doctype required
 - Outer body `<table>` must NOT set `align="left"` — Outlook's Word renderer treats it as floated, causing CodeTwo-appended signatures to render alongside the body in the compose draft view. Use `width="600"` only.
 - Email body ends at its last content row immediately followed by `</table>` — no trailing "Thank you." line, no trailing spacer. CodeTwo's signature provides its own top margin. Gap between body and signature is controlled by CodeTwo's anchor, not by our HTML.
@@ -27,10 +28,18 @@
 - Subject line: `navigator.clipboard.writeText()`
 - Email body: `ClipboardItem` with `text/html` blob (fallback: hidden div + execCommand)
 
+## Shared Form Fields
+- **Conversion Name**, **Cycle**, and **Project Prefix** are shared across both modes
+- **Project Prefix** defaults to `"Wave 2C"` (pre-filled); consultants on other projects clear or change it. Omitting it drops the prefix entirely — no leading space.
+- **Posted At** is Posted Files mode only (optional timestamp appended to the opening sentence)
+- File row label inputs show an amber warning border (`.form-input.warn:not(:focus)`) when a URL is present but the label field is empty
+
 ## JS Patterns
 - `generateSubjectLine()` and `generateEmailHTML()` branch on `activeMode` at the top of each function — follow this pattern for any future mode-specific logic
 - Copy File Locations handler also branches: `activeMode === 'recon' ? generateReconFileLocationsHTML() : generateFileLocationsHTML()`
 - Recon status toggle tracks `reconStatus` (`'clean'` | `'issues'`) separately from `activeMode`
+- `checkFileRowWarnings()` is called from `updatePreview()` on every state change; it applies/removes `.warn` on Posted Files file row label inputs
+- Recon email sentence suppresses the location label when no URL is provided: `': [link]'` only appears when `reconReportUrl` has a value
 
 ## Commands
 - No build/test commands — open `index.html` in browser to test

@@ -1557,6 +1557,44 @@
             document.body.removeChild(container);
         }
     });
+
+    /* ═══════════════════════════════════════════════
+       Recipients — State
+       ═══════════════════════════════════════════════ */
+    const RECIPIENTS_KEY = 'definian_recipients';
+
+    let recipientsState = {
+        activeClientIndex: 0,
+        expanded: false,
+        manageMode: false,
+        clients: []
+    };
+
+    function loadRecipientsState() {
+        try {
+            const raw = localStorage.getItem(RECIPIENTS_KEY);
+            if (raw) {
+                const saved = JSON.parse(raw);
+                recipientsState.clients = saved.clients || [];
+                recipientsState.activeClientIndex = saved.activeClientIndex || 0;
+                if (recipientsState.activeClientIndex >= recipientsState.clients.length) {
+                    recipientsState.activeClientIndex = 0;
+                }
+            }
+        } catch {
+            recipientsState.clients = [];
+            recipientsState.activeClientIndex = 0;
+        }
+    }
+
+    function saveRecipientsState() {
+        localStorage.setItem(RECIPIENTS_KEY, JSON.stringify({
+            activeClientIndex: recipientsState.activeClientIndex,
+            clients: recipientsState.clients
+        }));
+    }
+
+    loadRecipientsState();
     </script>
 </body>
 </html>

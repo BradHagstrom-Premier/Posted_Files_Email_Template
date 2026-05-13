@@ -625,6 +625,258 @@
                 margin-left: 28px;
             }
         }
+
+        /* ───────────────────────────────────────────
+           Recipients Section
+           ─────────────────────────────────────────── */
+        .recipients-section {
+            margin-top: 28px;
+            border-top: 1.5px solid var(--border);
+            padding-top: 20px;
+        }
+
+        .recipients-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .recipients-header-title {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--blue);
+            flex: 1;
+        }
+
+        .recipients-badge {
+            font-size: 11px;
+            color: var(--text-secondary);
+            background: var(--blue-muted);
+            padding: 2px 9px;
+            border-radius: 20px;
+            font-weight: 500;
+        }
+
+        .recipients-chevron {
+            font-size: 11px;
+            color: var(--text-secondary);
+            transition: transform var(--transition);
+        }
+
+        .recipients-chevron.open {
+            transform: rotate(180deg);
+        }
+
+        .btn-copy-quick {
+            font-size: 11.5px;
+            font-weight: 600;
+            color: #fff;
+            background: var(--blue);
+            border: none;
+            border-radius: var(--radius-sm);
+            padding: 4px 10px;
+            cursor: pointer;
+            transition: background var(--transition);
+            white-space: nowrap;
+        }
+
+        .btn-copy-quick:hover {
+            background: var(--blue-light);
+        }
+
+        .recipients-body {
+            margin-top: 14px;
+        }
+
+        .recipients-client-label {
+            font-size: 12.5px;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 6px;
+            display: block;
+        }
+
+        .recipients-contact-list {
+            margin: 10px 0 8px;
+        }
+
+        .recipients-contact-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 5px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .recipients-contact-row:last-child {
+            border-bottom: none;
+        }
+
+        .recipients-contact-name {
+            font-size: 12.5px;
+            color: var(--text);
+            flex: 0 0 auto;
+            min-width: 110px;
+        }
+
+        .recipients-contact-email {
+            font-size: 11.5px;
+            color: var(--text-secondary);
+            flex: 1;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .recipients-add-link,
+        .recipients-manage-link {
+            font-size: 11.5px;
+            color: var(--blue);
+            cursor: pointer;
+            text-decoration: none;
+            opacity: 0.8;
+            transition: opacity var(--transition);
+            background: none;
+            border: none;
+            padding: 0;
+            font-family: inherit;
+        }
+
+        .recipients-add-link:hover,
+        .recipients-manage-link:hover {
+            opacity: 1;
+            text-decoration: underline;
+        }
+
+        .recipients-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .btn-copy-recipients {
+            flex: 1;
+            padding: 8px;
+            background: var(--blue);
+            color: #fff;
+            border: none;
+            border-radius: var(--radius-sm);
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: inherit;
+            transition: background var(--transition);
+        }
+
+        .btn-copy-recipients:hover:not(:disabled) {
+            background: var(--blue-light);
+        }
+
+        .btn-copy-recipients:disabled {
+            opacity: 0.45;
+            cursor: not-allowed;
+        }
+
+        /* Manage mode */
+        .recipients-manage-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 14px;
+        }
+
+        .recipients-manage-title {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--blue);
+        }
+
+        .recipients-manage-contact-row {
+            display: flex;
+            gap: 5px;
+            align-items: center;
+            margin-bottom: 6px;
+        }
+
+        .recipients-manage-contact-row .form-input {
+            font-size: 12px;
+            padding: 6px 9px;
+        }
+
+        .btn-delete-contact {
+            background: none;
+            border: none;
+            color: #b91c1c;
+            font-size: 16px;
+            cursor: pointer;
+            padding: 0 2px;
+            line-height: 1;
+            flex-shrink: 0;
+        }
+
+        .btn-delete-client {
+            padding: 6px 10px;
+            background: #fef2f2;
+            color: #b91c1c;
+            border: 1px solid #fca5a5;
+            border-radius: var(--radius-sm);
+            font-size: 11.5px;
+            cursor: pointer;
+            font-family: inherit;
+            transition: background var(--transition);
+        }
+
+        .btn-delete-client:hover {
+            background: #fee2e2;
+        }
+
+        .btn-save-client {
+            flex: 1;
+            padding: 7px;
+            background: var(--blue);
+            color: #fff;
+            border: none;
+            border-radius: var(--radius-sm);
+            font-size: 12.5px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: inherit;
+            transition: background var(--transition);
+        }
+
+        .btn-save-client:hover {
+            background: var(--blue-light);
+        }
+
+        .btn-new-client {
+            padding: 7px 10px;
+            background: var(--bg);
+            color: var(--text);
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius-sm);
+            font-size: 12.5px;
+            cursor: pointer;
+            font-family: inherit;
+            transition: border-color var(--transition);
+        }
+
+        .btn-new-client:hover {
+            border-color: var(--blue);
+        }
+
+        .recipients-empty {
+            font-size: 12.5px;
+            color: var(--text-secondary);
+            text-align: center;
+            padding: 14px 0;
+        }
     </style>
 </head>
 <body>

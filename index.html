@@ -1724,7 +1724,187 @@
     }
 
     function wireRecipientsEvents() {
-        // Implemented in Task 7
+        // Expand/collapse toggle (click on header, but not on child buttons)
+        const toggle = document.getElementById('recipientsToggle');
+        if (toggle) {
+            toggle.addEventListener('click', (e) => {
+                if (e.target.closest('button')) return;
+                recipientsState.expanded = !recipientsState.expanded;
+                renderRecipients();
+            });
+        }
+
+        // Quick copy (collapsed state)
+        const quickCopy = document.getElementById('recipientsCopyQuick');
+        if (quickCopy) {
+            quickCopy.addEventListener('click', (e) => {
+                e.stopPropagation();
+                copyRecipients();
+            });
+        }
+
+        // Client select dropdown
+        const clientSelect = document.getElementById('recipientsClientSelect');
+        if (clientSelect) {
+            clientSelect.addEventListener('change', () => {
+                recipientsState.activeClientIndex = parseInt(clientSelect.value, 10);
+                saveRecipientsState();
+                renderRecipients();
+            });
+        }
+
+        // Contact checkboxes
+        const contactList = document.querySelector('.recipients-contact-list');
+        if (contactList) {
+            contactList.addEventListener('change', (e) => {
+                const checkbox = e.target.closest('input[type="checkbox"][data-contact-index]');
+                if (!checkbox) return;
+                const idx = parseInt(checkbox.dataset.contactIndex, 10);
+                const client = recipientsState.clients[recipientsState.activeClientIndex];
+                if (client && client.contacts[idx]) {
+                    client.contacts[idx].checked = checkbox.checked;
+                    saveRecipientsState();
+                    renderRecipients();
+                }
+            });
+        }
+
+        // Copy Recipients button (expanded state)
+        const copyBtn = document.getElementById('recipientsCopy');
+        if (copyBtn) {
+            copyBtn.addEventListener('click', copyRecipients);
+        }
+
+        // "+ Add contact" shortcut in expanded view (enters manage mode)
+        const addContactShortcut = document.getElementById('recipientsAddContact');
+        if (addContactShortcut) {
+            addContactShortcut.addEventListener('click', () => {
+                recipientsState.manageMode = true;
+                renderRecipients();
+                // Auto-click the add contact button in manage mode
+                const manageAdd = document.getElementById('manageAddContact');
+                if (manageAdd) manageAdd.click();
+            });
+        }
+
+        // Enter manage mode
+        const manageBtn = document.getElementById('recipientsManageBtn');
+        if (manageBtn) {
+            manageBtn.addEventListener('click', () => {
+                recipientsState.manageMode = true;
+                renderRecipients();
+            });
+        }
+
+        // Empty state "Set up" CTA
+        const setupBtn = document.getElementById('recipientsSetup');
+        if (setupBtn) {
+            setupBtn.addEventListener('click', () => {
+                // Add a blank client, enter manage mode
+                recipientsState.clients.push({ name: '', contacts: [] });
+                recipientsState.activeClientIndex = recipientsState.clients.length - 1;
+                recipientsState.manageMode = true;
+                saveRecipientsState();
+                renderRecipients();
+            });
+        }
+
+        // Manage mode — Done (discard)
+        const doneBtn = document.getElementById('recipientsDoneBtn');
+        if (doneBtn) {
+            doneBtn.addEventListener('click', () => {
+                // If active client has no name and no contacts, remove it (cleanup from abandoned new-client)
+                const client = recipientsState.clients[recipientsState.activeClientIndex];
+                if (client && !client.name.trim() && client.contacts.length === 0) {
+                    recipientsState.clients.splice(recipientsState.activeClientIndex, 1);
+                    recipientsState.activeClientIndex = Math.max(0, recipientsState.clients.length - 1);
+                    saveRecipientsState();
+                }
+                recipientsState.manageMode = false;
+                renderRecipients();
+            });
+        }
+
+        // Manage mode — Save
+        const saveBtn = document.getElementById('manageSaveBtn');
+        if (saveBtn) {
+            saveBtn.addEventListener('click', () => {
+                const nameInput = document.getElementById('manageClientName');
+                const rows = document.querySelectorAll('#manageContactRows .recipients-manage-contact-row');
+                const client = recipientsState.clients[recipientsState.activeClientIndex];
+                if (!client) return;
+
+                const oldContacts = client.contacts;
+                const newContacts = Array.from(rows).map((row, i) => {
+                    const nameVal = row.querySelector('.manage-contact-name').value.trim();
+                    const emailVal = row.querySelector('.manage-contact-email').value.trim();
+                    return {
+                        name: nameVal,
+                        email: emailVal,
+                        checked: oldContacts[i] !== undefined ? oldContacts[i].checked : true
+                    };
+                }).filter(c => c.name || c.email); // drop fully empty rows
+
+                client.name = nameInput ? nameInput.value.trim() : client.name;
+                client.contacts = newContacts;
+                saveRecipientsState();
+                recipientsState.manageMode = false;
+                renderRecipients();
+                showToast('Saved!');
+            });
+        }
+
+        // Manage mode — Add contact row
+        const addContactBtn = document.getElementById('manageAddContact');
+        if (addContactBtn) {
+            addContactBtn.addEventListener('click', () => {
+                const rows = document.getElementById('manageContactRows');
+                const newRow = document.createElement('div');
+                newRow.className = 'recipients-manage-contact-row';
+                const rowIndex = rows.querySelectorAll('.recipients-manage-contact-row').length;
+                newRow.dataset.row = rowIndex;
+                newRow.innerHTML = `
+                    <input type="text" class="form-input manage-contact-name" placeholder="Name" style="flex:2;">
+                    <input type="text" class="form-input manage-contact-email" placeholder="email@client.com" style="flex:3;">
+                    <button type="button" class="btn-delete-contact" data-row="${rowIndex}" title="Remove contact" aria-label="Remove contact">&times;</button>`;
+                rows.appendChild(newRow);
+                newRow.querySelector('.manage-contact-name').focus();
+            });
+        }
+
+        // Manage mode — Delete contact row (event delegation)
+        const contactRows = document.getElementById('manageContactRows');
+        if (contactRows) {
+            contactRows.addEventListener('click', (e) => {
+                const btn = e.target.closest('.btn-delete-contact');
+                if (!btn) return;
+                btn.closest('.recipients-manage-contact-row').remove();
+            });
+        }
+
+        // Manage mode — New client
+        const newClientBtn = document.getElementById('manageNewClientBtn');
+        if (newClientBtn) {
+            newClientBtn.addEventListener('click', () => {
+                recipientsState.clients.push({ name: '', contacts: [] });
+                recipientsState.activeClientIndex = recipientsState.clients.length - 1;
+                saveRecipientsState();
+                renderRecipients();
+            });
+        }
+
+        // Manage mode — Delete client
+        const deleteClientBtn = document.getElementById('manageDeleteClient');
+        if (deleteClientBtn) {
+            deleteClientBtn.addEventListener('click', () => {
+                recipientsState.clients.splice(recipientsState.activeClientIndex, 1);
+                recipientsState.activeClientIndex = Math.max(0, recipientsState.clients.length - 1);
+                saveRecipientsState();
+                recipientsState.manageMode = false;
+                renderRecipients();
+                showToast('Client deleted.');
+            });
+        }
     }
 
     function copyRecipients() {

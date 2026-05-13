@@ -1727,6 +1727,21 @@
         // Implemented in Task 7
     }
 
+    function copyRecipients() {
+        const client = recipientsState.clients[recipientsState.activeClientIndex];
+        if (!client) return;
+        const line = client.contacts
+            .filter(c => c.checked)
+            .map(c => c.email)
+            .join('; ');
+        if (!line) return;
+        navigator.clipboard.writeText(line).then(() => {
+            showToast('Recipients copied!');
+        }).catch(() => {
+            showToast('Copy failed — try again');
+        });
+    }
+
     renderRecipients();
     </script>
 </body>

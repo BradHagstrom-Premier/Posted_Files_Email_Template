@@ -40,10 +40,20 @@
 - Recon status toggle tracks `reconStatus` (`'clean'` | `'issues'`) separately from `activeMode`
 - `checkFileRowWarnings()` is called from `updatePreview()` on every state change; it applies/removes `.warn` on Posted Files file row label inputs
 - Recon email sentence suppresses the location label when no URL is provided: `': [link]'` only appears when `reconReportUrl` has a value
+- `escapeHtml(str)` is already defined (uses `textContent` → `innerHTML` trick) — reuse it; do not re-declare
+
+## Recipients (Client Email List)
+- Collapsible section at bottom of form panel — UI-only, NOT included in email output (no `updatePreview()` coupling)
+- State in `recipientsState` JS object; mirrored to localStorage under `definian_recipients`
+- Render pattern: every mutation calls `saveRecipientsState()` then `renderRecipients()` which does full `innerHTML` replacement and re-wires events via `wireRecipientsEvents()`
+- `renderManageMode()` is the inline editor; toggled by `recipientsState.manageMode`
+- Visible across both tabs (lives outside `#postedFilesFields` / `#reconFields`)
 
 ## Commands
 - No build/test commands — open `index.html` in browser to test
 - Verify both tabs: Posted Files and Recon Report, including Clean/Issues toggle and Copy buttons
+- Implementation plans and design specs live in `docs/superpowers/plans/`
+- Chrome DevTools MCP is preferred for scripted E2E verification (no automated test suite exists)
 
 ## graphify
 

@@ -1685,8 +1685,42 @@
     }
 
     function renderManageMode(section) {
-        // Implemented in Task 5
-        section.innerHTML = '<div class="recipients-body"><p style="font-size:12px;color:var(--text-secondary);">Manage mode — coming soon</p></div>';
+        const client = recipientsState.clients[recipientsState.activeClientIndex] || null;
+
+        let contactRowsHTML = '';
+        if (client) {
+            contactRowsHTML = client.contacts.map((c, i) => `
+                <div class="recipients-manage-contact-row" data-row="${i}">
+                    <input type="text" class="form-input manage-contact-name" value="${escapeHtml(c.name)}" placeholder="Name" style="flex:2;">
+                    <input type="text" class="form-input manage-contact-email" value="${escapeHtml(c.email)}" placeholder="email@client.com" style="flex:3;">
+                    <button type="button" class="btn-delete-contact" data-row="${i}" title="Remove contact" aria-label="Remove contact">&times;</button>
+                </div>`).join('');
+        }
+
+        const clientNameVal = client ? escapeHtml(client.name) : '';
+        const hasMultipleClients = recipientsState.clients.length > 1;
+
+        section.innerHTML = `
+            <div class="recipients-manage-header">
+                <span class="recipients-manage-title">Manage Clients</span>
+                <button type="button" class="recipients-manage-link" id="recipientsDoneBtn">&#8592; Done</button>
+            </div>
+            <div class="recipients-body">
+                <label class="recipients-client-label" for="manageClientName">Client name</label>
+                <div style="display:flex;gap:6px;margin-bottom:14px;">
+                    <input type="text" class="form-input" id="manageClientName" value="${clientNameVal}" placeholder="Client name" style="flex:1;">
+                    ${hasMultipleClients ? `<button type="button" class="btn-delete-client" id="manageDeleteClient">Delete</button>` : ''}
+                </div>
+                <label class="recipients-client-label">Contacts</label>
+                <div id="manageContactRows">${contactRowsHTML}</div>
+                <button type="button" class="recipients-add-link" id="manageAddContact" style="margin-bottom:14px;display:inline-block;">+ Add contact</button>
+                <div style="display:flex;gap:6px;">
+                    <button type="button" class="btn-save-client" id="manageSaveBtn">Save</button>
+                    <button type="button" class="btn-new-client" id="manageNewClientBtn">+ New Client</button>
+                </div>
+            </div>`;
+
+        wireRecipientsEvents();
     }
 
     function wireRecipientsEvents() {

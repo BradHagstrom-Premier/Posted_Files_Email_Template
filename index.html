@@ -1962,16 +1962,17 @@
         }
     }
 
-    function copyRecipients() {
+    function copyRecipients(role) {
         const client = recipientsState.clients[recipientsState.activeClientIndex];
         if (!client) return;
         const line = client.contacts
-            .filter(c => c.checked)
-            .map(c => c.email)
+            .map((c, i) => ({ c, i }))
+            .filter(({ c, i }) => c.checked && effectiveRole(i) === role)
+            .map(({ c }) => c.email)
             .join('; ');
         if (!line) return;
         navigator.clipboard.writeText(line).then(() => {
-            showToast('Recipients copied!');
+            showToast(role === 'to' ? 'To addresses copied!' : 'CC addresses copied!');
         }).catch(() => {
             showToast('Copy failed — try again');
         });

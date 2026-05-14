@@ -1757,12 +1757,16 @@
 
         let contactRowsHTML = '';
         if (client) {
-            contactRowsHTML = client.contacts.map((c, i) => `
+            contactRowsHTML = client.contacts.map((c, i) => {
+                const role = c.role || 'to';
+                return `
                 <div class="recipients-manage-contact-row" data-row="${i}">
                     <input type="text" class="form-input manage-contact-name" value="${escapeHtml(c.name)}" placeholder="Name" style="flex:2;">
                     <input type="text" class="form-input manage-contact-email" value="${escapeHtml(c.email)}" placeholder="email@client.com" style="flex:3;">
+                    <button type="button" class="role-pill role-pill--${role}" data-role="${role}" title="Click to flip default To/CC">${role === 'to' ? 'To' : 'CC'}</button>
                     <button type="button" class="btn-delete-contact" data-row="${i}" title="Remove contact" aria-label="Remove contact">&times;</button>
-                </div>`).join('');
+                </div>`;
+            }).join('');
         }
 
         const clientNameVal = client ? escapeHtml(client.name) : '';
@@ -1959,19 +1963,30 @@
                 newRow.innerHTML = `
                     <input type="text" class="form-input manage-contact-name" placeholder="Name" style="flex:2;">
                     <input type="text" class="form-input manage-contact-email" placeholder="email@client.com" style="flex:3;">
+                    <button type="button" class="role-pill role-pill--to" data-role="to" title="Click to flip default To/CC">To</button>
                     <button type="button" class="btn-delete-contact" data-row="${rowIndex}" title="Remove contact" aria-label="Remove contact">&times;</button>`;
                 rows.appendChild(newRow);
                 newRow.querySelector('.manage-contact-name').focus();
             });
         }
 
-        // Manage mode — Delete contact row (event delegation)
+        // Manage mode — Delete contact row + Role pill click (event delegation)
         const contactRows = document.getElementById('manageContactRows');
         if (contactRows) {
             contactRows.addEventListener('click', (e) => {
                 const btn = e.target.closest('.btn-delete-contact');
-                if (!btn) return;
-                btn.closest('.recipients-manage-contact-row').remove();
+                if (btn) {
+                    btn.closest('.recipients-manage-contact-row').remove();
+                    return;
+                }
+                const pill = e.target.closest('.role-pill[data-role]');
+                if (pill) {
+                    const next = pill.dataset.role === 'to' ? 'cc' : 'to';
+                    pill.dataset.role = next;
+                    pill.classList.toggle('role-pill--to', next === 'to');
+                    pill.classList.toggle('role-pill--cc', next === 'cc');
+                    pill.textContent = next === 'to' ? 'To' : 'CC';
+                }
             });
         }
 

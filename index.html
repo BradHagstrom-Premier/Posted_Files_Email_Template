@@ -940,6 +940,93 @@
             background: var(--blue-muted);
         }
 
+        /* Manage mode — Rail Layout */
+        .recipients-manage-layout {
+            display: flex;
+            gap: 14px;
+            align-items: flex-start;
+        }
+        .recipients-rail {
+            flex: 0 0 180px;
+            border-right: 1px solid var(--border-default);
+            padding-right: 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+        .recipients-rail-row {
+            position: relative;
+            background: none;
+            border: none;
+            text-align: left;
+            padding: 8px 10px 8px 14px;
+            border-radius: 5px;
+            cursor: pointer;
+            font: 500 13px / 1.3 inherit;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            outline: none;
+        }
+        .recipients-rail-row:hover, .recipients-rail-row:focus { background: var(--surface-bg); }
+        .recipients-rail-row.is-active { font-weight: 700; }
+        .recipients-rail-row.is-active::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 6px;
+            bottom: 6px;
+            width: 4px;
+            background: var(--blue);
+            border-radius: 2px;
+        }
+        .recipients-rail-row .rail-count {
+            margin-left: auto;
+            color: var(--text-secondary);
+            font-weight: 400;
+            font-size: 11.5px;
+        }
+        .recipients-rail-divider { height: 1px; background: var(--border-default); margin: 6px 0; }
+        .recipients-rail-new {
+            background: none;
+            border: 1.5px dashed var(--border-default);
+            border-radius: 5px;
+            padding: 7px 10px;
+            color: var(--blue);
+            font: 600 12.5px inherit;
+            cursor: pointer;
+            text-align: left;
+        }
+        .recipients-rail-new:hover { background: rgba(13, 44, 113, 0.06); border-color: var(--blue); }
+        .recipients-rail-delete {
+            margin-top: 6px;
+            background: none;
+            border: 1px solid var(--border-default);
+            border-radius: 5px;
+            padding: 6px 10px;
+            color: var(--error);
+            font: 600 12px inherit;
+            cursor: pointer;
+            text-align: center;
+        }
+        .recipients-rail-delete:hover { background: #FEF2F2; border-color: var(--error); }
+        .recipients-manage-editor { flex: 1; min-width: 0; }
+        @media (max-width: 1024px) {
+            .recipients-manage-layout { flex-direction: column; }
+            .recipients-rail {
+                flex: 0 0 auto;
+                flex-direction: row;
+                gap: 6px;
+                border-right: none;
+                border-bottom: 1px solid var(--border-default);
+                padding-right: 0;
+                padding-bottom: 10px;
+                overflow-x: auto;
+            }
+            .recipients-rail-row { flex: 0 0 auto; }
+            .recipients-rail-divider { display: none; }
+        }
+
         /* Manage mode */
         .recipients-manage-header {
             display: flex;
@@ -1975,8 +2062,44 @@
         wireRecipientsEvents();
     }
 
+    function exitManageMode() {
+        const client = recipientsState.clients[recipientsState.activeClientIndex];
+        if (client && !client.name.trim() && client.contacts.length === 0) {
+            recipientsState.clients.splice(recipientsState.activeClientIndex, 1);
+            recipientsState.activeClientIndex = Math.max(0, recipientsState.clients.length - 1);
+        }
+        recipientsState.manageMode = false;
+        recipientsState.manageDirty = false;
+        saveRecipientsState();
+        renderRecipients();
+    }
+
+    function showDoneConfirm() {
+        const header = document.querySelector('.recipients-manage-header');
+        if (!header) return;
+        header.innerHTML = `
+            <span class="recipients-manage-title" style="color:var(--text-secondary)">Discard unsaved changes?</span>
+            <button type="button" class="btn-save-client" id="confirmSaveClose" style="margin-right:6px;">Save &amp; Close</button>
+            <button type="button" class="recipients-manage-link" id="confirmDiscard" style="color:var(--error);">Discard</button>
+        `;
+        document.getElementById('confirmSaveClose').addEventListener('click', () => {
+            const saveBtn = document.getElementById('manageSaveBtn');
+            if (saveBtn) saveBtn.click();
+            exitManageMode();
+        });
+        document.getElementById('confirmDiscard').addEventListener('click', () => {
+            recipientsState.manageDirty = false;
+            loadRecipientsState();
+            recipientsState.manageMode = false;
+            renderRecipients();
+        });
+    }
+
     function renderManageMode(section) {
-        const client = recipientsState.clients[recipientsState.activeClientIndex] || null;
+        renderHeaderPill();
+        const clients = recipientsState.clients;
+        const activeIdx = recipientsState.activeClientIndex;
+        const client = clients[activeIdx] || null;
 
         let contactRowsHTML = '';
         if (client) {
@@ -1986,32 +2109,49 @@
                 <div class="recipients-manage-contact-row" data-row="${i}">
                     <input type="text" class="form-input manage-contact-name" value="${escapeHtml(c.name)}" placeholder="Name" style="flex:2;">
                     <input type="text" class="form-input manage-contact-email" value="${escapeHtml(c.email)}" placeholder="email@client.com" style="flex:3;">
-                    <button type="button" class="role-pill role-pill--${role}" data-role="${role}" title="Click to flip default To/CC">${role === 'to' ? 'To' : 'CC'}</button>
+                    <button type="button" class="role-pill role-pill--${role}" data-role="${role}" aria-pressed="${role === 'cc' ? 'true' : 'false'}" title="Click to flip default To/CC">${role === 'to' ? 'To' : 'CC'}</button>
                     <button type="button" class="btn-delete-contact" data-row="${i}" title="Remove contact" aria-label="Remove contact">&times;</button>
                 </div>`;
             }).join('');
         }
 
         const clientNameVal = client ? escapeHtml(client.name) : '';
-        const hasMultipleClients = recipientsState.clients.length > 1;
+
+        const railRowsHTML = clients.map((cl, i) => {
+            const name = cl.name || '(Untitled)';
+            const count = cl.contacts.length;
+            const activeCls = i === activeIdx ? ' is-active' : '';
+            return `<button type="button" class="recipients-rail-row${activeCls}" role="option" aria-selected="${i === activeIdx ? 'true' : 'false'}" data-rail-index="${i}">
+                <span class="rail-name">${escapeHtml(name)}</span>
+                <span class="rail-count">${count}</span>
+            </button>`;
+        }).join('');
+
+        const showDelete = clients.length > 1;
 
         section.innerHTML = `
             <div class="recipients-manage-header">
                 <span class="recipients-manage-title">Manage Clients</span>
                 <button type="button" class="recipients-manage-link" id="recipientsDoneBtn">&#8592; Done</button>
             </div>
-            <div class="recipients-body">
-                <label class="recipients-client-label" for="manageClientName">Client name</label>
-                <div style="display:flex;gap:6px;margin-bottom:14px;">
-                    <input type="text" class="form-input" id="manageClientName" value="${clientNameVal}" placeholder="Client name" style="flex:1;">
-                    ${hasMultipleClients ? `<button type="button" class="btn-delete-client" id="manageDeleteClient">Delete</button>` : ''}
-                </div>
-                <label class="recipients-client-label">Contacts</label>
-                <div id="manageContactRows">${contactRowsHTML}</div>
-                <button type="button" class="recipients-add-link" id="manageAddContact" style="margin-bottom:14px;display:inline-block;">+ Add contact</button>
-                <div style="display:flex;gap:6px;">
-                    <button type="button" class="btn-save-client" id="manageSaveBtn">Save</button>
-                    <button type="button" class="btn-new-client" id="manageNewClientBtn">+ New Client</button>
+            <div class="recipients-body" id="recipientsBody">
+                <div class="recipients-manage-layout">
+                    <div class="recipients-rail" role="listbox" aria-label="Clients">
+                        ${railRowsHTML}
+                        <div class="recipients-rail-divider"></div>
+                        <button type="button" class="recipients-rail-new" id="railNewClient">+ New client</button>
+                        ${showDelete ? `<button type="button" class="recipients-rail-delete" id="railDeleteClient">Delete client</button>` : ''}
+                    </div>
+                    <div class="recipients-manage-editor">
+                        <label class="recipients-client-label" for="manageClientName">Client name</label>
+                        <input type="text" class="form-input" id="manageClientName" value="${clientNameVal}" placeholder="Client name" style="width:100%;margin-bottom:14px;">
+                        <label class="recipients-client-label">Contacts</label>
+                        <div id="manageContactRows">${contactRowsHTML}</div>
+                        <button type="button" class="recipients-add-link" id="manageAddContact" style="margin-bottom:14px;display:inline-block;">+ Add contact</button>
+                        <div style="display:flex;gap:6px;">
+                            <button type="button" class="btn-save-client" id="manageSaveBtn">Save</button>
+                        </div>
+                    </div>
                 </div>
             </div>`;
 
@@ -2129,19 +2269,15 @@
             });
         }
 
-        // Manage mode — Done (discard)
+        // Manage mode — Done (with dirty guard)
         const doneBtn = document.getElementById('recipientsDoneBtn');
         if (doneBtn) {
             doneBtn.addEventListener('click', () => {
-                // If active client has no name and no contacts, remove it (cleanup from abandoned new-client)
-                const client = recipientsState.clients[recipientsState.activeClientIndex];
-                if (client && !client.name.trim() && client.contacts.length === 0) {
-                    recipientsState.clients.splice(recipientsState.activeClientIndex, 1);
-                    recipientsState.activeClientIndex = Math.max(0, recipientsState.clients.length - 1);
-                    saveRecipientsState();
+                if (recipientsState.manageDirty) {
+                    showDoneConfirm();
+                    return;
                 }
-                recipientsState.manageMode = false;
-                renderRecipients();
+                exitManageMode();
             });
         }
 
@@ -2171,6 +2307,7 @@
                 client.name = nameInput ? nameInput.value.trim() : client.name;
                 client.contacts = newContacts;
                 recipientsState.overrides = {};   // contact indexes may have shifted
+                recipientsState.manageDirty = false;
                 saveRecipientsState();
                 recipientsState.manageMode = false;
                 renderRecipients();
@@ -2217,29 +2354,62 @@
             });
         }
 
-        // Manage mode — New client
-        const newClientBtn = document.getElementById('manageNewClientBtn');
-        if (newClientBtn) {
-            newClientBtn.addEventListener('click', () => {
+        // Rail row clicks — switch active client without leaving manage mode
+        document.querySelectorAll('.recipients-rail-row').forEach(row => {
+            row.addEventListener('click', () => {
+                const prevClient = recipientsState.clients[recipientsState.activeClientIndex];
+                if (prevClient) {
+                    const nameInput = document.getElementById('manageClientName');
+                    if (nameInput) prevClient.name = nameInput.value.trim();
+                    document.querySelectorAll('.recipients-manage-contact-row').forEach(r => {
+                        const i = parseInt(r.dataset.row, 10);
+                        const nameEl = r.querySelector('.manage-contact-name');
+                        const emailEl = r.querySelector('.manage-contact-email');
+                        const roleBtn = r.querySelector('.role-pill');
+                        if (prevClient.contacts[i]) {
+                            prevClient.contacts[i].name = nameEl.value.trim();
+                            prevClient.contacts[i].email = emailEl.value.trim();
+                            prevClient.contacts[i].role = roleBtn.dataset.role;
+                        }
+                    });
+                }
+                recipientsState.activeClientIndex = parseInt(row.dataset.railIndex, 10);
+                renderRecipients();
+            });
+        });
+
+        const railNew = document.getElementById('railNewClient');
+        if (railNew) {
+            railNew.addEventListener('click', () => {
                 recipientsState.clients.push({ name: '', contacts: [] });
                 recipientsState.activeClientIndex = recipientsState.clients.length - 1;
-                saveRecipientsState();
+                recipientsState.manageDirty = true;
+                renderRecipients();
+                setTimeout(() => {
+                    const nameInput = document.getElementById('manageClientName');
+                    if (nameInput) nameInput.focus();
+                }, 0);
+            });
+        }
+
+        const railDelete = document.getElementById('railDeleteClient');
+        if (railDelete) {
+            railDelete.addEventListener('click', () => {
+                if (recipientsState.clients.length <= 1) return;
+                recipientsState.clients.splice(recipientsState.activeClientIndex, 1);
+                recipientsState.activeClientIndex = Math.max(0, recipientsState.activeClientIndex - 1);
+                recipientsState.manageDirty = true;
                 renderRecipients();
             });
         }
 
-        // Manage mode — Delete client
-        const deleteClientBtn = document.getElementById('manageDeleteClient');
-        if (deleteClientBtn) {
-            deleteClientBtn.addEventListener('click', () => {
-                recipientsState.clients.splice(recipientsState.activeClientIndex, 1);
-                recipientsState.activeClientIndex = Math.max(0, recipientsState.clients.length - 1);
-                saveRecipientsState();
-                recipientsState.manageMode = false;
-                renderRecipients();
-                showToast('Client deleted.');
-            });
-        }
+        // Dirty-tracking on manage-mode inputs
+        document.querySelectorAll('.recipients-manage-contact-row input, #manageClientName').forEach(input => {
+            input.addEventListener('input', () => { recipientsState.manageDirty = true; });
+        });
+        document.querySelectorAll('.recipients-manage-contact-row .role-pill, .recipients-manage-contact-row .btn-delete-contact, #manageAddContact').forEach(btn => {
+            btn.addEventListener('click', () => { recipientsState.manageDirty = true; });
+        });
     }
 
     function copyRecipients(role) {

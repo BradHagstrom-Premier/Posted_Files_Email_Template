@@ -1609,6 +1609,8 @@
         activeClientIndex: 0,
         expanded: false,
         manageMode: false,
+        manageDirty: false,
+        popoverOpen: false,
         clients: [],
         overrides: {}   // { [contactIndex]: 'to' | 'cc' } — transient, never persisted
     };
@@ -1629,6 +1631,9 @@
                         if (!c.role) c.role = 'to';
                     });
                 });
+                if (typeof saved.expanded === 'boolean') {
+                    recipientsState.expanded = saved.expanded;
+                }
             }
         } catch {
             recipientsState.clients = [];
@@ -1639,6 +1644,7 @@
     function saveRecipientsState() {
         localStorage.setItem(RECIPIENTS_KEY, JSON.stringify({
             activeClientIndex: recipientsState.activeClientIndex,
+            expanded: recipientsState.expanded,
             clients: recipientsState.clients
         }));
     }

@@ -71,9 +71,9 @@
             position: absolute;
             bottom: 0;
             left: 0;
-            right: 0;
+            width: 30%;
             height: 3px;
-            background: linear-gradient(90deg, var(--green) 0%, var(--green) 30%, transparent 30%);
+            background: var(--green);
         }
 
         .header-pip {
@@ -735,7 +735,7 @@
             background: var(--green);
             color: #ffffff;
             padding: 10px 28px;
-            border-radius: 10px;
+            border-radius: var(--radius);
             font-size: 13.5px;
             font-weight: 600;
             opacity: 0;
@@ -1831,7 +1831,7 @@
                 document.execCommand('copy');
                 showToast('Subject line copied!');
             } catch {
-                showToast('Copy failed \u2014 select and Ctrl+C');
+                showToast('Copy failed: select and Ctrl+C');
             }
             document.body.removeChild(ta);
         }
@@ -1861,7 +1861,7 @@
                 document.execCommand('copy');
                 showToast('File locations copied!');
             } catch {
-                showToast('Copy failed \u2014 try Ctrl+C from preview');
+                showToast('Copy failed: try Ctrl+C from preview');
             }
             sel.removeAllRanges();
             document.body.removeChild(container);
@@ -1877,7 +1877,7 @@
             const blob = new Blob([html], { type: 'text/html' });
             const item = new ClipboardItem({ 'text/html': blob });
             await navigator.clipboard.write([item]);
-            showToast('Email HTML copied!');
+            showToast('Email copied!');
         } catch {
             // Fallback: render into hidden div and use execCommand
             const container = document.createElement('div');
@@ -1891,9 +1891,9 @@
             sel.addRange(range);
             try {
                 document.execCommand('copy');
-                showToast('Email HTML copied!');
+                showToast('Email copied!');
             } catch {
-                showToast('Copy failed \u2014 try Ctrl+C from preview');
+                showToast('Copy failed: try Ctrl+C from preview');
             }
             sel.removeAllRanges();
             document.body.removeChild(container);
@@ -2541,7 +2541,7 @@
         navigator.clipboard.writeText(line).then(() => {
             showToast(role === 'to' ? 'To addresses copied!' : 'CC addresses copied!');
         }).catch(() => {
-            showToast('Copy failed — try again');
+            showToast('Copy failed: try again');
         });
     }
 

@@ -1567,7 +1567,8 @@
         activeClientIndex: 0,
         expanded: false,
         manageMode: false,
-        clients: []
+        clients: [],
+        overrides: {}   // { [contactIndex]: 'to' | 'cc' } — transient, never persisted
     };
 
     function loadRecipientsState() {
@@ -1580,6 +1581,12 @@
                 if (recipientsState.activeClientIndex >= recipientsState.clients.length) {
                     recipientsState.activeClientIndex = 0;
                 }
+                // Migration: backfill role='to' on any contact missing role
+                recipientsState.clients.forEach(cl => {
+                    (cl.contacts || []).forEach(c => {
+                        if (!c.role) c.role = 'to';
+                    });
+                });
             }
         } catch {
             recipientsState.clients = [];
@@ -1595,6 +1602,12 @@
     }
 
     loadRecipientsState();
+
+    function effectiveRole(idx) {
+        const client = recipientsState.clients[recipientsState.activeClientIndex];
+        if (!client || !client.contacts[idx]) return 'to';
+        return recipientsState.overrides[idx] ?? client.contacts[idx].role ?? 'to';
+    }
 
     /* ═══════════════════════════════════════════════
        Recipients — Render

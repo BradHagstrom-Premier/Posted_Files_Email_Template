@@ -20,3 +20,6 @@ graphify-out/
 
 # Claude Code project-level settings (hook references a local tool install)
 .claude/settings.json
+
+# Superpowers brainstorming session artifacts
+.superpowers/

@@ -34,6 +34,12 @@
             --radius: 8px;
             --radius-sm: 5px;
             --transition: 0.18s ease;
+            /* Aliases used by newer components */
+            --text-primary: #1a1a2e;
+            --border-default: #dde1e7;
+            --surface-bg: #f0f2f5;
+            --surface-white: #ffffff;
+            --error: #EF4444;
         }
 
         html, body {
@@ -85,7 +91,6 @@
         }
 
         .header-badge {
-            margin-left: auto;
             font-size: 11px;
             font-weight: 500;
             background: rgba(255,255,255,0.12);
@@ -94,6 +99,98 @@
             letter-spacing: 0.3px;
             text-transform: uppercase;
         }
+
+        .header-pill {
+            margin-left: auto;
+            margin-right: 10px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(255, 255, 255, 0.18);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 5px 10px;
+            font: 600 11.5px / 1 'DM Sans', 'Segoe UI', system-ui, -apple-system, sans-serif;
+            cursor: pointer;
+            transition: background-color 0.15s ease-out;
+        }
+        .header-pill:hover { background: rgba(255, 255, 255, 0.28); }
+        .header-pill[aria-expanded="true"] {
+            background: white;
+            color: var(--blue);
+        }
+        .header-pill[aria-expanded="true"] .header-pill-chevron { transform: rotate(180deg); }
+        .header-pill-chevron {
+            font-size: 10px;
+            opacity: 0.7;
+            transition: transform 0.15s ease-out;
+        }
+        .header-pill.is-empty {
+            background: transparent;
+            border: 1.5px dashed rgba(255, 255, 255, 0.45);
+            padding: 3.5px 10px;
+        }
+        .header-pill.is-empty:hover { background: rgba(255, 255, 255, 0.10); }
+        .header-pill.is-warn .header-pill-chevron { color: #FCD34D; opacity: 1; }
+        .header-pill:focus-visible {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.45);
+        }
+        @media (max-width: 1024px) {
+            .header-pill-text .pill-prefix { display: none; }
+        }
+
+        .header-pill-popover {
+            position: absolute;
+            top: 44px;
+            right: 16px;
+            z-index: 100;
+            width: 240px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18);
+            padding: 6px;
+            font: 500 13px / 1.4 'DM Sans', 'Segoe UI', system-ui, sans-serif;
+            color: var(--text-primary);
+        }
+        .header-pill-popover[hidden] { display: none; }
+        .popover-client-row {
+            display: flex;
+            align-items: center;
+            padding: 8px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            position: relative;
+            outline: none;
+        }
+        .popover-client-row:hover, .popover-client-row:focus { background: var(--surface-bg); }
+        .popover-client-row.is-active { font-weight: 700; }
+        .popover-client-row.is-active::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 6px;
+            bottom: 6px;
+            width: 4px;
+            background: var(--blue);
+            border-radius: 2px;
+        }
+        .popover-client-row .count-suffix { margin-left: auto; color: var(--text-secondary); font-weight: 400; font-size: 11.5px; }
+        .popover-divider { height: 1px; background: var(--border-default); margin: 6px 0; }
+        .popover-action {
+            display: block;
+            width: 100%;
+            text-align: left;
+            background: none;
+            border: none;
+            padding: 8px 10px;
+            border-radius: 5px;
+            color: var(--blue);
+            font: 600 13px / 1.4 inherit;
+            cursor: pointer;
+        }
+        .popover-action:hover, .popover-action:focus { background: rgba(13, 44, 113, 0.08); outline: none; }
 
         /* ───────────────────────────────────────────
            Main Layout — Split Panel
@@ -946,6 +1043,11 @@
     <div class="header">
         <div class="header-pip"></div>
         <span class="header-title">Posted Files Email Generator</span>
+        <button type="button" class="header-pill" id="headerPill" aria-haspopup="menu" aria-expanded="false">
+            <span class="header-pill-text">Loading…</span>
+            <span class="header-pill-chevron" aria-hidden="true">&#9662;</span>
+        </button>
+        <div class="header-pill-popover" id="headerPillPopover" role="menu" hidden></div>
         <span class="header-badge">Definian</span>
     </div>
 
@@ -1669,6 +1771,7 @@
     }
 
     loadRecipientsState();
+    // Initial renders deferred to after all functions are defined (see bottom of script)
 
     function effectiveRole(idx) {
         const client = recipientsState.clients[recipientsState.activeClientIndex];
@@ -1679,9 +1782,104 @@
     /* ═══════════════════════════════════════════════
        Recipients — Render
        ═══════════════════════════════════════════════ */
+    function renderHeaderPill() {
+        const pill = document.getElementById('headerPill');
+        if (!pill) return;
+        const textEl = pill.querySelector('.header-pill-text');
+        const hasClients = recipientsState.clients.length > 0;
+        pill.classList.remove('is-empty', 'is-warn');
+        if (!hasClients) {
+            pill.classList.add('is-empty');
+            textEl.textContent = '+ Add recipients';
+            renderPillPopover();
+            return;
+        }
+        const client = recipientsState.clients[recipientsState.activeClientIndex];
+        const name = client && client.name ? client.name : '(Untitled)';
+        const checkedCount = client ? client.contacts.filter(c => c.checked).length : 0;
+        const isWarn = !client.name || checkedCount === 0;
+        if (isWarn) pill.classList.add('is-warn');
+        const countSuffix = client && client.name && checkedCount > 0 ? ` · ${checkedCount}` : '';
+        textEl.innerHTML = `<span class="pill-prefix">Sending to: </span>${escapeHtml(name)}${countSuffix}`;
+        renderPillPopover();
+    }
+
+    function renderPillPopover() {
+        const pop = document.getElementById('headerPillPopover');
+        if (!pop) return;
+        if (!recipientsState.popoverOpen) {
+            pop.hidden = true;
+            document.getElementById('headerPill').setAttribute('aria-expanded', 'false');
+            return;
+        }
+        pop.hidden = false;
+        document.getElementById('headerPill').setAttribute('aria-expanded', 'true');
+
+        const clients = recipientsState.clients;
+        const active = recipientsState.activeClientIndex;
+        const rowsHTML = clients.length === 0
+            ? `<div style="padding:12px 10px;color:var(--text-secondary);font-size:12px">No clients yet.</div>`
+            : clients.map((cl, i) => {
+                const name = cl.name || '(Untitled)';
+                const count = cl.contacts.filter(c => c.checked).length;
+                const activeCls = i === active ? ' is-active' : '';
+                return `<div class="popover-client-row${activeCls}" role="menuitem" tabindex="0" data-client-index="${i}">
+                    ${escapeHtml(name)}<span class="count-suffix">${count}</span>
+                </div>`;
+            }).join('');
+
+        pop.innerHTML = `
+            ${rowsHTML}
+            <div class="popover-divider"></div>
+            <button type="button" class="popover-action" id="popoverNewClient" role="menuitem">+ New client</button>
+            <button type="button" class="popover-action" id="popoverManage" role="menuitem">Manage clients…</button>
+        `;
+
+        pop.querySelectorAll('.popover-client-row').forEach(row => {
+            row.addEventListener('click', () => {
+                const idx = parseInt(row.dataset.clientIndex, 10);
+                recipientsState.activeClientIndex = idx;
+                recipientsState.overrides = {};
+                recipientsState.popoverOpen = false;
+                saveRecipientsState();
+                renderRecipients();
+            });
+            row.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') { e.preventDefault(); row.click(); }
+            });
+        });
+        document.getElementById('popoverNewClient').addEventListener('click', () => {
+            recipientsState.clients.push({ name: '', contacts: [] });
+            recipientsState.activeClientIndex = recipientsState.clients.length - 1;
+            recipientsState.manageMode = true;
+            recipientsState.manageDirty = false;
+            recipientsState.popoverOpen = false;
+            recipientsState.expanded = true;
+            saveRecipientsState();
+            renderRecipients();
+            setTimeout(() => {
+                const nameInput = document.getElementById('manageClientName');
+                if (nameInput) nameInput.focus();
+            }, 0);
+        });
+        document.getElementById('popoverManage').addEventListener('click', () => {
+            recipientsState.manageMode = true;
+            recipientsState.manageDirty = false;
+            recipientsState.popoverOpen = false;
+            recipientsState.expanded = true;
+            renderRecipients();
+            document.getElementById('recipientsSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+
+        const activeRow = pop.querySelector('.popover-client-row.is-active') || pop.querySelector('.popover-client-row') || pop.querySelector('.popover-action');
+        if (activeRow) activeRow.focus();
+    }
+
     function renderRecipients() {
         const section = document.getElementById('recipientsSection');
         if (!section) return;
+
+        renderHeaderPill();
 
         if (recipientsState.manageMode) {
             renderManageMode(section);
@@ -2059,6 +2257,124 @@
             showToast('Copy failed — try again');
         });
     }
+
+    // ── Global event wiring (after all functions defined) ──────────────────
+
+    // Header pill: open popover or jump straight to new-client manage mode
+    document.getElementById('headerPill').addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (recipientsState.clients.length === 0) {
+            recipientsState.clients.push({ name: '', contacts: [] });
+            recipientsState.activeClientIndex = 0;
+            recipientsState.manageMode = true;
+            recipientsState.manageDirty = false;
+            recipientsState.expanded = true;
+            saveRecipientsState();
+            renderRecipients();
+            setTimeout(() => {
+                const nameInput = document.getElementById('manageClientName');
+                if (nameInput) nameInput.focus();
+            }, 0);
+            return;
+        }
+        recipientsState.popoverOpen = !recipientsState.popoverOpen;
+        renderPillPopover();
+    });
+
+    // Close popover on outside click
+    document.addEventListener('click', (e) => {
+        if (!recipientsState.popoverOpen) return;
+        const pop = document.getElementById('headerPillPopover');
+        const pill = document.getElementById('headerPill');
+        if (pop.contains(e.target) || pill.contains(e.target)) return;
+        recipientsState.popoverOpen = false;
+        renderPillPopover();
+    });
+
+    // Help pill toggle (wired after help pill is added in Task 11 — placeholder here)
+
+    // Esc handler (expanded below in later tasks; start with popover close)
+    document.addEventListener('keydown', (e) => {
+        if (e.key !== 'Escape') return;
+        const helpPop = document.getElementById('helpPopover');
+        if (helpPop && !helpPop.hidden) {
+            helpPop.hidden = true;
+            document.getElementById('helpPill').setAttribute('aria-expanded', 'false');
+            document.getElementById('helpPill').focus();
+            return;
+        }
+        if (recipientsState.popoverOpen) {
+            recipientsState.popoverOpen = false;
+            renderPillPopover();
+            document.getElementById('headerPill').focus();
+            return;
+        }
+        if (recipientsState.manageMode) {
+            if (recipientsState.manageDirty) {
+                showDoneConfirm();
+            } else {
+                exitManageMode();
+            }
+            return;
+        }
+        if (recipientsState.expanded) {
+            recipientsState.expanded = false;
+            saveRecipientsState();
+            renderRecipients();
+        }
+    });
+
+    // Envelope strip click (wired after strip markup added in Task 8 — safe because getElementById returns null if absent)
+    const envelopeStripEl = document.getElementById('envelopeStrip');
+    if (envelopeStripEl) {
+        envelopeStripEl.addEventListener('click', () => {
+            recipientsState.expanded = true;
+            saveRecipientsState();
+            renderRecipients();
+            document.getElementById('recipientsSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+    }
+
+    // Global keyboard shortcuts
+    document.addEventListener('keydown', (e) => {
+        const cmd = e.ctrlKey || e.metaKey;
+        if (!cmd) return;
+        if (e.key === 'Enter' && !e.shiftKey) {
+            if (document.activeElement && document.activeElement.tagName === 'TEXTAREA') return;
+            e.preventDefault();
+            document.getElementById('copyEmail').click();
+            return;
+        }
+        if (!e.shiftKey) return;
+        if (e.key === 'C' || e.key === 'c') {
+            e.preventDefault();
+            document.getElementById('copySubject').click();
+        } else if (e.key === 'T' || e.key === 't') {
+            e.preventDefault();
+            if (typeof copyRecipients === 'function') copyRecipients('to');
+        } else if (e.key === 'Y' || e.key === 'y') {
+            e.preventDefault();
+            if (typeof copyRecipients === 'function') copyRecipients('cc');
+        }
+    });
+
+    // Tab arrow-key navigation
+    function wireTablist(idA, idB) {
+        const a = document.getElementById(idA);
+        const b = document.getElementById(idB);
+        if (!a || !b) return;
+        [a, b].forEach(el => {
+            el.addEventListener('keydown', (e) => {
+                if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+                e.preventDefault();
+                const other = el === a ? b : a;
+                other.click();
+                other.focus();
+            });
+        });
+    }
+    wireTablist('tabPostedFiles', 'tabReconReport');
+    wireTablist('statusClean', 'statusIssues');
 
     renderRecipients();
     </script>

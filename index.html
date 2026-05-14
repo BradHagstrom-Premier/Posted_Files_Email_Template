@@ -2140,7 +2140,7 @@
                                    style="accent-color:var(--blue);width:14px;height:14px;flex-shrink:0;cursor:pointer;"
                                    aria-label="${escapeHtml(c.name)}">
                             <span class="recipients-contact-name">${escapeHtml(c.name)}</span>
-                            <button type="button" class="role-pill role-pill--${role}" data-role-index="${i}" title="Click to flip To/CC for this email">${role === 'to' ? 'To' : 'CC'}</button>
+                            <button type="button" class="role-pill role-pill--${role}" data-role-index="${i}" aria-pressed="${role === 'cc' ? 'true' : 'false'}" title="Click to flip To/CC for this email">${role === 'to' ? 'To' : 'CC'}</button>
                             <span class="recipients-contact-email">${escapeHtml(c.email)}</span>
                         </div>`;
                         }).join('') +

@@ -641,6 +641,18 @@
             gap: 8px;
             cursor: pointer;
             user-select: none;
+            background: none;
+            border: none;
+            width: 100%;
+            text-align: left;
+            font: inherit;
+            color: inherit;
+            padding: 0;
+        }
+        .recipients-header:focus-visible {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(13, 44, 113, 0.18);
+            border-radius: 6px;
         }
 
         .recipients-header-title {
@@ -1693,7 +1705,7 @@
         if (recipientsState.expanded) {
             if (!hasClients) {
                 bodyHTML = `
-                <div class="recipients-body">
+                <div class="recipients-body" id="recipientsBody">
                     <div class="recipients-empty">
                         No clients yet.
                         <button type="button" class="recipients-add-link" id="recipientsSetup">Set up your first client</button>
@@ -1732,7 +1744,7 @@
                 const ccDisabled = ccCount === 0 ? 'disabled' : '';
 
                 bodyHTML = `
-                <div class="recipients-body">
+                <div class="recipients-body" id="recipientsBody">
                     <label class="recipients-client-label" for="recipientsClientSelect">Client</label>
                     <select class="form-select" id="recipientsClientSelect">${options}</select>
                     ${contactsHTML}
@@ -1747,12 +1759,12 @@
         }
 
         section.innerHTML = `
-            <div class="recipients-header" id="recipientsToggle">
+            <button type="button" class="recipients-header" id="recipientsToggle" aria-expanded="${recipientsState.expanded}" aria-controls="recipientsBody">
                 <span class="recipients-header-title">Recipients</span>
                 ${badgeHTML}
                 ${quickCopyHTML}
                 <span class="${chevronClass}" aria-hidden="true">&#9660;</span>
-            </div>
+            </button>
             ${bodyHTML}`;
 
         wireRecipientsEvents();
@@ -1802,12 +1814,12 @@
     }
 
     function wireRecipientsEvents() {
-        // Expand/collapse toggle (click on header, but not on child buttons)
+        // Expand/collapse toggle
         const toggle = document.getElementById('recipientsToggle');
         if (toggle) {
-            toggle.addEventListener('click', (e) => {
-                if (e.target.closest('button')) return;
+            toggle.addEventListener('click', () => {
                 recipientsState.expanded = !recipientsState.expanded;
+                saveRecipientsState();
                 renderRecipients();
             });
         }

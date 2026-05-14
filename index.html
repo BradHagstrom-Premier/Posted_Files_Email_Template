@@ -782,6 +782,48 @@
             cursor: not-allowed;
         }
 
+        .role-pill {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: var(--radius-sm);
+            font-size: 11px;
+            font-weight: 600;
+            font-family: inherit;
+            border: none;
+            cursor: pointer;
+            transition: background var(--transition);
+            user-select: none;
+            flex-shrink: 0;
+        }
+
+        .role-pill--to {
+            background: var(--blue);
+            color: #ffffff;
+        }
+
+        .role-pill--to:hover {
+            background: var(--blue-light);
+        }
+
+        .role-pill--cc {
+            background: var(--blue-muted);
+            color: var(--text-secondary);
+        }
+
+        .role-pill--cc:hover {
+            background: rgba(13, 44, 113, 0.14);
+        }
+
+        .btn-copy-recipients--secondary {
+            background: #ffffff;
+            color: var(--blue);
+            border: 1px solid var(--blue);
+        }
+
+        .btn-copy-recipients--secondary:hover:not(:disabled) {
+            background: var(--blue-muted);
+        }
+
         /* Manage mode */
         .recipients-manage-header {
             display: flex;

@@ -192,6 +192,58 @@
         }
         .popover-action:hover, .popover-action:focus { background: rgba(13, 44, 113, 0.08); outline: none; }
 
+        .recipients-help-pill {
+            background: rgba(255, 255, 255, 0.12);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 22px;
+            height: 22px;
+            font: 700 12px / 1 'DM Sans', system-ui, sans-serif;
+            cursor: pointer;
+            margin-right: 8px;
+            transition: background-color 0.15s ease-out;
+        }
+        .recipients-help-pill:hover { background: rgba(255, 255, 255, 0.22); }
+        .recipients-help-pill:focus-visible {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.45);
+        }
+        .recipients-help-popover {
+            position: absolute;
+            top: 44px;
+            right: 16px;
+            z-index: 99;
+            width: 280px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18);
+            padding: 14px 16px;
+            color: var(--text-primary);
+            font: 400 12.5px / 1.5 'DM Sans', system-ui, sans-serif;
+        }
+        .recipients-help-popover[hidden] { display: none; }
+        .recipients-help-popover h4 {
+            margin: 0 0 8px 0;
+            font-size: 12.5px;
+            font-weight: 700;
+        }
+        .recipients-help-popover dl {
+            margin: 0;
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: 4px 12px;
+        }
+        .recipients-help-popover dt {
+            font-weight: 600;
+            color: var(--text-primary);
+            font-variant-numeric: tabular-nums;
+        }
+        .recipients-help-popover dd {
+            margin: 0;
+            color: var(--text-secondary);
+        }
+
         /* ───────────────────────────────────────────
            Main Layout — Split Panel
            ─────────────────────────────────────────── */
@@ -1159,6 +1211,19 @@
             <span class="header-pill-chevron" aria-hidden="true">&#9662;</span>
         </button>
         <div class="header-pill-popover" id="headerPillPopover" role="menu" hidden></div>
+        <button type="button" class="recipients-help-pill" id="helpPill" aria-haspopup="dialog" aria-expanded="false" title="Keyboard shortcuts">?</button>
+        <div class="recipients-help-popover" id="helpPopover" role="dialog" aria-label="Keyboard shortcuts" hidden>
+            <h4>Keyboard Shortcuts</h4>
+            <dl>
+                <dt>Ctrl + Enter</dt><dd>Copy Email</dd>
+                <dt>Ctrl + Shift + C</dt><dd>Copy Subject</dd>
+                <dt>Ctrl + Shift + T</dt><dd>Copy To recipients</dd>
+                <dt>Ctrl + Shift + Y</dt><dd>Copy CC recipients</dd>
+                <dt>&#8592; / &#8594;</dt><dd>Switch tabs / toggle</dd>
+                <dt>Space / Enter</dt><dd>Toggle Recipients</dd>
+                <dt>Esc</dt><dd>Close popovers / manage</dd>
+            </dl>
+        </div>
         <span class="header-badge">Definian</span>
     </div>
 
@@ -2513,7 +2578,23 @@
         renderPillPopover();
     });
 
-    // Help pill toggle (wired after help pill is added in Task 11 — placeholder here)
+    // Help pill toggle
+    document.getElementById('helpPill').addEventListener('click', (e) => {
+        e.stopPropagation();
+        const pop = document.getElementById('helpPopover');
+        const wasOpen = !pop.hidden;
+        pop.hidden = wasOpen;
+        document.getElementById('helpPill').setAttribute('aria-expanded', wasOpen ? 'false' : 'true');
+    });
+
+    document.addEventListener('click', (e) => {
+        const pop = document.getElementById('helpPopover');
+        const pill = document.getElementById('helpPill');
+        if (pop.hidden) return;
+        if (pop.contains(e.target) || pill.contains(e.target)) return;
+        pop.hidden = true;
+        pill.setAttribute('aria-expanded', 'false');
+    });
 
     // Esc handler (expanded below in later tasks; start with popover close)
     document.addEventListener('keydown', (e) => {

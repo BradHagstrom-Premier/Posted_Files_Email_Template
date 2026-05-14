@@ -1823,6 +1823,7 @@
         if (clientSelect) {
             clientSelect.addEventListener('change', () => {
                 recipientsState.activeClientIndex = parseInt(clientSelect.value, 10);
+                recipientsState.overrides = {};   // overrides are scoped to active client
                 saveRecipientsState();
                 renderRecipients();
             });

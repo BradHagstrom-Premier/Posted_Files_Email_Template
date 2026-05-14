@@ -1714,8 +1714,10 @@
                     `</div>`;
                 }
 
-                const copyDisabled = checkedContacts.length === 0 ? 'disabled' : '';
-                const copyLabel = checkedContacts.length === 0 ? 'No contacts selected' : 'Copy Recipients';
+                const toCount = client.contacts.filter((c, i) => c.checked && effectiveRole(i) === 'to').length;
+                const ccCount = client.contacts.filter((c, i) => c.checked && effectiveRole(i) === 'cc').length;
+                const toDisabled = toCount === 0 ? 'disabled' : '';
+                const ccDisabled = ccCount === 0 ? 'disabled' : '';
 
                 bodyHTML = `
                 <div class="recipients-body">
@@ -1724,7 +1726,8 @@
                     ${contactsHTML}
                     <button type="button" class="recipients-add-link" id="recipientsAddContact" style="margin-bottom:10px;display:inline-block;">+ Add contact</button>
                     <div class="recipients-actions">
-                        <button type="button" class="btn-copy-recipients" id="recipientsCopy" ${copyDisabled}>${copyLabel}</button>
+                        <button type="button" class="btn-copy-recipients" id="recipientsCopyTo" ${toDisabled} title="${toCount === 0 ? 'No To recipients selected' : ''}">Copy To</button>
+                        <button type="button" class="btn-copy-recipients btn-copy-recipients--secondary" id="recipientsCopyCc" ${ccDisabled} title="${ccCount === 0 ? 'No CC recipients selected' : ''}">Copy CC</button>
                         <button type="button" class="recipients-manage-link" id="recipientsManageBtn">Manage</button>
                     </div>
                 </div>`;
@@ -1841,10 +1844,14 @@
             });
         }
 
-        // Copy Recipients button (expanded state)
-        const copyBtn = document.getElementById('recipientsCopy');
-        if (copyBtn) {
-            copyBtn.addEventListener('click', copyRecipients);
+        // Copy To / Copy CC buttons (expanded state)
+        const copyToBtn = document.getElementById('recipientsCopyTo');
+        if (copyToBtn) {
+            copyToBtn.addEventListener('click', () => copyRecipients('to'));
+        }
+        const copyCcBtn = document.getElementById('recipientsCopyCc');
+        if (copyCcBtn) {
+            copyCcBtn.addEventListener('click', () => copyRecipients('cc'));
         }
 
         // "+ Add contact" shortcut in expanded view (enters manage mode)

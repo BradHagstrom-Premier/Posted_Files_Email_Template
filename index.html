@@ -1672,7 +1672,13 @@
         let quickCopyHTML = '';
         if (hasClients && client) {
             badgeHTML = `<span class="recipients-badge">${escapeHtml(client.name)} &middot; ${checkedContacts.length}</span>`;
-            quickCopyHTML = `<button type="button" class="btn-copy-quick" id="recipientsCopyQuick">Copy &#9658;</button>`;
+            const quickToCount = client.contacts.filter((c, i) => c.checked && effectiveRole(i) === 'to').length;
+            const quickCcCount = client.contacts.filter((c, i) => c.checked && effectiveRole(i) === 'cc').length;
+            const quickToDisabled = quickToCount === 0 ? 'disabled' : '';
+            const quickCcDisabled = quickCcCount === 0 ? 'disabled' : '';
+            quickCopyHTML = `
+                <button type="button" class="btn-copy-quick" id="recipientsCopyQuickTo" ${quickToDisabled}>Copy To &#9658;</button>
+                <button type="button" class="btn-copy-quick" id="recipientsCopyQuickCc" ${quickCcDisabled}>Copy CC &#9658;</button>`;
         }
 
         const chevronClass = recipientsState.expanded ? 'recipients-chevron open' : 'recipients-chevron';
@@ -1796,12 +1802,19 @@
             });
         }
 
-        // Quick copy (collapsed state)
-        const quickCopy = document.getElementById('recipientsCopyQuick');
-        if (quickCopy) {
-            quickCopy.addEventListener('click', (e) => {
+        // Quick copy buttons (collapsed state)
+        const quickCopyTo = document.getElementById('recipientsCopyQuickTo');
+        if (quickCopyTo) {
+            quickCopyTo.addEventListener('click', (e) => {
                 e.stopPropagation();
-                copyRecipients();
+                copyRecipients('to');
+            });
+        }
+        const quickCopyCc = document.getElementById('recipientsCopyQuickCc');
+        if (quickCopyCc) {
+            quickCopyCc.addEventListener('click', (e) => {
+                e.stopPropagation();
+                copyRecipients('cc');
             });
         }
 

@@ -39,7 +39,7 @@
             --border-default: #dde1e7;
             --surface-bg: #f0f2f5;
             --surface-white: #ffffff;
-            --error: #EF4444;
+            --error: #dc2626;
         }
 
         html, body {
@@ -147,6 +147,8 @@
             right: 16px;
             z-index: 100;
             width: 240px;
+            max-height: 320px;
+            overflow-y: auto;
             background: white;
             border-radius: 8px;
             box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18);
@@ -364,6 +366,10 @@
 
         /* Cycle custom input */
         .cycle-custom-toggle {
+            background: none;
+            border: none;
+            padding: 0;
+            font-family: inherit;
             font-size: 11.5px;
             color: var(--blue);
             cursor: pointer;
@@ -376,6 +382,11 @@
             transition: opacity var(--transition);
         }
         .cycle-custom-toggle:hover {
+            opacity: 1;
+            text-decoration: underline;
+        }
+        .cycle-custom-toggle:focus-visible {
+            outline: none;
             opacity: 1;
             text-decoration: underline;
         }
@@ -545,7 +556,7 @@
         }
 
         .btn-remove-row:hover {
-            color: #dc2626;
+            color: var(--error);
             background: #fef2f2;
         }
 
@@ -579,52 +590,29 @@
         }
 
         .subject-label {
-            font-size: 11px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.8px;
+            font-size: 12.5px;
+            font-weight: 600;
             color: var(--text-secondary);
-            margin-bottom: 7px;
-        }
-
-        .subject-row {
-            display: flex;
-            align-items: center;
-            gap: 12px;
+            letter-spacing: 0.15px;
+            margin-bottom: 6px;
         }
 
         .subject-text {
-            flex: 1;
             font-size: 14px;
             font-weight: 600;
             color: var(--text);
             word-break: break-word;
             line-height: 1.35;
             user-select: all;
+            cursor: text;
         }
 
-        .btn-copy {
-            background: var(--blue);
-            color: #ffffff;
-            border: none;
-            padding: 7px 15px;
-            font-size: 12.5px;
-            font-weight: 600;
-            border-radius: var(--radius-sm);
-            cursor: pointer;
-            white-space: nowrap;
-            transition: background var(--transition), transform 0.1s, box-shadow var(--transition);
-            letter-spacing: 0.2px;
-            box-shadow: var(--shadow-sm);
-        }
-
-        .btn-copy:hover {
-            background: var(--blue-light);
-            box-shadow: var(--shadow-md);
-        }
-
-        .btn-copy:active {
-            transform: scale(0.96);
+        .subject-text.is-placeholder {
+            color: var(--text-secondary);
+            font-weight: 400;
+            font-style: italic;
+            user-select: none;
+            cursor: default;
         }
 
         .envelope-strip {
@@ -677,10 +665,10 @@
             box-shadow: 0 -2px 8px rgba(0,0,0,0.04);
         }
 
-        .btn-copy-email {
+        .btn-copy-primary {
             background: var(--blue);
             color: #ffffff;
-            border: none;
+            border: 2px solid var(--blue);
             padding: 13px 36px;
             font-size: 14px;
             font-weight: 700;
@@ -693,36 +681,37 @@
             box-shadow: var(--shadow-md);
         }
 
-        .btn-copy-email:hover {
+        .btn-copy-primary:hover {
             background: var(--blue-light);
+            border-color: var(--blue-light);
             box-shadow: var(--shadow-lg);
         }
 
-        .btn-copy-email:active {
+        .btn-copy-primary:active {
             transform: scale(0.98);
         }
 
-        .btn-copy-locations {
+        .btn-copy-secondary {
             background: transparent;
             color: var(--blue);
-            border: 2px solid var(--blue);
+            border: 1.5px solid var(--blue);
             padding: 13px 20px;
-            font-size: 14px;
-            font-weight: 700;
+            font-size: 13.5px;
+            font-weight: 600;
             border-radius: var(--radius);
             cursor: pointer;
             transition: background var(--transition), transform 0.1s, box-shadow var(--transition);
             flex: 0 0 auto;
-            letter-spacing: 0.3px;
+            letter-spacing: 0.2px;
             white-space: nowrap;
         }
 
-        .btn-copy-locations:hover {
+        .btn-copy-secondary:hover {
             background: var(--blue-muted);
             box-shadow: var(--shadow-md);
         }
 
-        .btn-copy-locations:active {
+        .btn-copy-secondary:active {
             transform: scale(0.98);
         }
 
@@ -731,7 +720,7 @@
            ─────────────────────────────────────────── */
         .toast {
             position: fixed;
-            bottom: 28px;
+            bottom: 80px;
             left: 50%;
             transform: translateX(-50%) translateY(16px);
             background: var(--green);
@@ -746,12 +735,44 @@
             z-index: 1000;
             box-shadow: 0 6px 20px rgba(0, 171, 99, 0.3);
             letter-spacing: 0.2px;
+            display: inline-flex;
+            align-items: center;
+            gap: 16px;
         }
 
         .toast.show {
             opacity: 1;
             transform: translateX(-50%) translateY(0);
         }
+
+        .toast.undoable {
+            pointer-events: auto;
+            background: var(--text);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+        }
+
+        .toast-undo {
+            background: transparent;
+            color: #ffffff;
+            border: none;
+            font: inherit;
+            cursor: pointer;
+            padding: 2px 6px;
+            border-radius: var(--radius-sm);
+            text-decoration: underline;
+            text-underline-offset: 2px;
+        }
+
+        .toast-undo:hover {
+            background: rgba(255, 255, 255, 0.12);
+        }
+
+        .toast-undo:focus-visible {
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.55);
+        }
+
+        .toast-undo[hidden] { display: none; }
 
         /* ───────────────────────────────────────────
            Responsive — Stack below 1024px
@@ -831,11 +852,10 @@
         }
 
         .recipients-header-title {
-            font-size: 11px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            color: var(--blue);
+            font-size: 12.5px;
+            font-weight: 600;
+            color: var(--text);
+            letter-spacing: 0.15px;
             flex: 1;
         }
 
@@ -990,6 +1010,11 @@
             flex-shrink: 0;
         }
 
+        .role-pill:focus-visible {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(13, 44, 113, 0.25);
+        }
+
         .role-pill--to {
             background: var(--blue);
             color: #ffffff;
@@ -1063,6 +1088,7 @@
             color: var(--text-secondary);
             font-weight: 400;
             font-size: 11.5px;
+            font-variant-numeric: tabular-nums;
         }
         .recipients-rail-divider { height: 1px; background: var(--border-default); margin: 6px 0; }
         .recipients-rail-new {
@@ -1136,7 +1162,7 @@
         .btn-delete-contact {
             background: none;
             border: none;
-            color: #b91c1c;
+            color: var(--error);
             font-size: 14px;
             cursor: pointer;
             padding: 0 2px;
@@ -1147,7 +1173,7 @@
         .btn-delete-client {
             padding: 6px 10px;
             background: #fef2f2;
-            color: #b91c1c;
+            color: var(--error);
             border: 1px solid #fca5a5;
             border-radius: var(--radius-sm);
             font-size: 11.5px;
@@ -1209,7 +1235,7 @@
         <div class="header-pip"></div>
         <span class="header-title">Posted Files Email Generator</span>
         <button type="button" class="header-pill" id="headerPill" aria-haspopup="menu" aria-expanded="false">
-            <span class="header-pill-text">Loading…</span>
+            <span class="header-pill-text"></span>
             <span class="header-pill-chevron" aria-hidden="true">&#9662;</span>
         </button>
         <div class="header-pill-popover" id="headerPillPopover" role="menu" hidden></div>
@@ -1217,7 +1243,7 @@
         <div class="recipients-help-popover" id="helpPopover" role="dialog" aria-label="Keyboard shortcuts" hidden>
             <h4>Keyboard Shortcuts</h4>
             <dl>
-                <dt>Ctrl + Enter</dt><dd>Copy Email</dd>
+                <dt>Ctrl + Enter</dt><dd>Copy Email Body</dd>
                 <dt>Ctrl + Shift + C</dt><dd>Copy Subject</dd>
                 <dt>Ctrl + Shift + T</dt><dd>Copy To recipients</dd>
                 <dt>Ctrl + Shift + Y</dt><dd>Copy CC recipients</dd>
@@ -1263,17 +1289,18 @@
                     </select>
                     <input type="text" class="form-input" id="cycleCustom"
                            placeholder="Enter custom cycle name" style="display:none;">
-                    <span class="cycle-custom-toggle" id="cycleToggle" role="button" tabindex="0" style="display:none;">&larr; Back to dropdown</span>
+                    <button type="button" class="cycle-custom-toggle" id="cycleToggle" style="display:none;">&larr; Back to dropdown</button>
                 </div>
             </div>
 
             <div class="form-group">
                 <label class="form-label" for="projectPrefix">
                     Project Prefix
-                    <span class="form-label-hint">(optional)</span>
+                    <span class="form-label-hint">(your engagement wave &mdash; optional)</span>
                 </label>
                 <input type="text" class="form-input" id="projectPrefix"
-                       value="Wave 2C" placeholder="e.g., Wave 2C, Phase 1">
+                       value="Wave 2C" placeholder="e.g., Wave 2C, Phase 1"
+                       title="Prefixes the subject line. Clear or change this for projects other than AWC Wave 2C.">
             </div>
 
             <!-- Posted Files specific fields -->
@@ -1375,10 +1402,7 @@
         <div class="panel-preview" id="previewPanel">
             <div class="subject-bar">
                 <div class="subject-label">Subject Line</div>
-                <div class="subject-row">
-                    <span class="subject-text" id="subjectText"></span>
-                    <button type="button" class="btn-copy" id="copySubject">Copy Subject</button>
-                </div>
+                <div class="subject-text" id="subjectText"></div>
             </div>
             <button type="button" class="envelope-strip" id="envelopeStrip" hidden aria-label="Recipients">
                 <span class="envelope-strip-text"></span>
@@ -1387,14 +1411,15 @@
                 <iframe class="preview-frame" id="previewFrame" sandbox="allow-same-origin" title="Email preview"></iframe>
             </div>
             <div class="copy-bar">
-                <button type="button" class="btn-copy-locations" id="copyLocations">Copy File Locations</button>
-                <button type="button" class="btn-copy-email" id="copyEmail">Copy Email HTML</button>
+                <button type="button" class="btn-copy-secondary" id="copySubject">Copy Subject</button>
+                <button type="button" class="btn-copy-secondary" id="copyLocations">Copy File Locations</button>
+                <button type="button" class="btn-copy-primary" id="copyEmail">Copy Email Body</button>
             </div>
         </div>
     </div>
 
     <!-- Toast -->
-    <div class="toast" id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
+    <div class="toast" id="toast" role="status" aria-live="polite" aria-atomic="true"><span class="toast-message" id="toastMessage"></span><button type="button" class="toast-undo" id="toastUndo" hidden>Undo</button></div>
 
     <script>
     /* ═══════════════════════════════════════════════
@@ -1495,10 +1520,6 @@
         updatePreview();
     });
 
-    cycleToggle.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); cycleToggle.click(); }
-    });
-
     cycleToggle.addEventListener('click', () => {
         cycleSelect.value = '';
         cycleSelect.style.display = '';
@@ -1537,9 +1558,25 @@
 
     function addRemoveHandler(btn) {
         btn.addEventListener('click', () => {
-            btn.closest('.file-row').remove();
+            const row = btn.closest('.file-row');
+            const nextSibling = row.nextSibling;
+            const parent = row.parentNode;
+            const label = row.querySelector('.file-row-label')?.value || '';
+            const url = row.querySelector('.file-row-url')?.value || '';
+            row.remove();
             renumberFileRows();
             updatePreview();
+            showUndoableToast('File row removed.', () => {
+                parent.insertBefore(row, nextSibling);
+                addRemoveHandler(row.querySelector('.btn-remove-row'));
+                row.querySelectorAll('input').forEach(el => el.addEventListener('input', updatePreview));
+                const labelInput = row.querySelector('.file-row-label');
+                const urlInput = row.querySelector('.file-row-url');
+                if (labelInput) labelInput.value = label;
+                if (urlInput) urlInput.value = url;
+                renumberFileRows();
+                updatePreview();
+            });
         });
     }
 
@@ -1581,6 +1618,7 @@
         const name = document.getElementById('conversionName').value.trim();
         const cycle = getCycleValue();
         const prefix = document.getElementById('projectPrefix').value.trim();
+        if (!name && !cycle) return '';
         const prefixPart = prefix ? prefix + ' ' : '';
         return prefixPart + (name || '[Conversion Name]') + ' Recon Report - ' + (cycle || '[Cycle]');
     }
@@ -1674,6 +1712,7 @@
         const name = document.getElementById('conversionName').value.trim();
         const cycle = getCycleValue();
         const prefix = document.getElementById('projectPrefix').value.trim();
+        if (!name && !cycle) return '';
         const prefixPart = prefix ? prefix + ' ' : '';
         return prefixPart + (name || '[Conversion Name]') + ' Files Posted - ' + (cycle || '[Cycle]');
     }
@@ -1794,7 +1833,15 @@
     }
 
     function updatePreview() {
-        document.getElementById('subjectText').textContent = generateSubjectLine();
+        const subjectEl = document.getElementById('subjectText');
+        const subject = generateSubjectLine();
+        if (subject) {
+            subjectEl.textContent = subject;
+            subjectEl.classList.remove('is-placeholder');
+        } else {
+            subjectEl.textContent = 'Enter Conversion Name and Cycle to see the subject';
+            subjectEl.classList.add('is-placeholder');
+        }
         document.getElementById('previewFrame').srcdoc = generateEmailHTML();
         checkFileRowWarnings();
     }
@@ -1806,13 +1853,40 @@
        Toast
        ═══════════════════════════════════════════════ */
     let toastTimer = null;
+    let toastUndoFn = null;
     function showToast(message) {
         const toast = document.getElementById('toast');
-        toast.textContent = message;
+        document.getElementById('toastMessage').textContent = message;
+        document.getElementById('toastUndo').hidden = true;
+        toast.classList.remove('undoable');
         toast.classList.add('show');
+        toastUndoFn = null;
         clearTimeout(toastTimer);
         toastTimer = setTimeout(() => toast.classList.remove('show'), 2000);
     }
+
+    function showUndoableToast(message, onUndo, durationMs = 5000) {
+        const toast = document.getElementById('toast');
+        const undoBtn = document.getElementById('toastUndo');
+        document.getElementById('toastMessage').textContent = message;
+        undoBtn.hidden = false;
+        toast.classList.add('show', 'undoable');
+        toastUndoFn = onUndo;
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => {
+            toast.classList.remove('show', 'undoable');
+            toastUndoFn = null;
+        }, durationMs);
+    }
+
+    document.getElementById('toastUndo').addEventListener('click', () => {
+        const fn = toastUndoFn;
+        toastUndoFn = null;
+        clearTimeout(toastTimer);
+        const toast = document.getElementById('toast');
+        toast.classList.remove('show', 'undoable');
+        if (typeof fn === 'function') fn();
+    });
 
     /* ═══════════════════════════════════════════════
        Clipboard — Subject Line
@@ -2078,15 +2152,18 @@
         const name = client && client.name ? client.name : '(Untitled)';
         const toCount = client ? client.contacts.filter((c, i) => c.checked && effectiveRole(i) === 'to').length : 0;
         const ccCount = client ? client.contacts.filter((c, i) => c.checked && effectiveRole(i) === 'cc').length : 0;
+        const overrideCount = Object.keys(recipientsState.overrides || {}).length;
+        const modifiedSuffix = overrideCount > 0 ? `<span class="sep">·</span><span class="label">modified</span>` : '';
+        const modifiedAria = overrideCount > 0 ? ' Roles modified for this send.' : '';
         if (toCount + ccCount === 0) {
             strip.hidden = false;
-            textEl.innerHTML = `<span class="label">No recipients yet</span><span class="sep">·</span>${escapeHtml(name)}`;
-            strip.setAttribute('aria-label', `No recipients yet for ${name}. Click to manage.`);
+            textEl.innerHTML = `<span class="label">No recipients yet</span><span class="sep">·</span>${escapeHtml(name)}${modifiedSuffix}`;
+            strip.setAttribute('aria-label', `No recipients yet for ${name}.${modifiedAria} Click to manage.`);
             return;
         }
         strip.hidden = false;
-        textEl.innerHTML = `<span class="label">To:</span> ${toCount}<span class="sep">·</span><span class="label">CC:</span> ${ccCount}<span class="sep">·</span>${escapeHtml(name)}`;
-        strip.setAttribute('aria-label', `Recipients: ${toCount} to, ${ccCount} cc, ${name}. Click to manage.`);
+        textEl.innerHTML = `<span class="label">To:</span> ${toCount}<span class="sep">·</span><span class="label">CC:</span> ${ccCount}<span class="sep">·</span>${escapeHtml(name)}${modifiedSuffix}`;
+        strip.setAttribute('aria-label', `Recipients: ${toCount} to, ${ccCount} cc, ${name}.${modifiedAria} Click to manage.`);
     }
 
     function renderRecipients() {
@@ -2151,7 +2228,7 @@
                                    style="accent-color:var(--blue);width:14px;height:14px;flex-shrink:0;cursor:pointer;"
                                    aria-label="${escapeHtml(c.name)}">
                             <span class="recipients-contact-name">${escapeHtml(c.name)}</span>
-                            <button type="button" class="role-pill role-pill--${role}" data-role-index="${i}" aria-pressed="${role === 'cc' ? 'true' : 'false'}" title="Click to flip To/CC for this email">${role === 'to' ? 'To' : 'CC'}</button>
+                            <button type="button" class="role-pill role-pill--${role}" data-role-index="${i}" aria-label="${escapeHtml(c.name)} — currently ${role === 'to' ? 'To' : 'CC'}, click to flip" aria-pressed="${role === 'cc' ? 'true' : 'false'}" title="Click to flip To/CC for this email">${role === 'to' ? 'To' : 'CC'}</button>
                             <span class="recipients-contact-email">${escapeHtml(c.email)}</span>
                         </div>`;
                         }).join('') +
@@ -2664,13 +2741,15 @@
     document.addEventListener('keydown', (e) => {
         const cmd = e.ctrlKey || e.metaKey;
         if (!cmd) return;
+        const inTextarea = document.activeElement && document.activeElement.tagName === 'TEXTAREA';
         if (e.key === 'Enter' && !e.shiftKey) {
-            if (document.activeElement && document.activeElement.tagName === 'TEXTAREA') return;
+            if (inTextarea) return;
             e.preventDefault();
             document.getElementById('copyEmail').click();
             return;
         }
         if (!e.shiftKey) return;
+        if (inTextarea) return;
         if (e.key === 'C' || e.key === 'c') {
             e.preventDefault();
             document.getElementById('copySubject').click();

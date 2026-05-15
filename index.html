@@ -416,38 +416,40 @@
            ─────────────────────────────────────────── */
         .mode-tabs {
             display: flex;
-            gap: 2px;
+            gap: 4px;
             margin-bottom: 24px;
-            background: var(--blue-muted);
-            border-radius: var(--radius);
-            padding: 3px;
+            border-bottom: 1px solid var(--border);
         }
 
         .mode-tab {
-            flex: 1;
-            padding: 8px 12px;
+            padding: 9px 16px;
             font-size: 12.5px;
             font-weight: 600;
             text-align: center;
             cursor: pointer;
             border: none;
-            border-radius: 6px;
+            border-bottom: 3px solid transparent;
+            margin-bottom: -1px;
             background: transparent;
             color: var(--text-secondary);
-            transition: background var(--transition), color var(--transition), box-shadow var(--transition);
+            transition: color var(--transition), border-color var(--transition);
             font-family: inherit;
             letter-spacing: 0.2px;
         }
 
         .mode-tab.active {
-            background: var(--blue);
-            color: #ffffff;
-            box-shadow: var(--shadow-sm);
+            color: var(--blue);
+            border-bottom-color: var(--blue);
         }
 
         .mode-tab:hover:not(.active) {
-            background: rgba(13, 44, 113, 0.12);
             color: var(--blue);
+        }
+
+        .mode-tab:focus-visible {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(13, 44, 113, 0.18);
+            border-radius: 4px;
         }
 
         /* ───────────────────────────────────────────

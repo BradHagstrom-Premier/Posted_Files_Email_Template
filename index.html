@@ -1960,6 +1960,15 @@
         return recipientsState.overrides[idx] ?? client.contacts[idx].role ?? 'to';
     }
 
+    function isValidEmail(v) {
+        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+    }
+
+    function applyEmailWarn(input) {
+        const v = input.value.trim();
+        input.classList.toggle('warn', v.length > 0 && !isValidEmail(v));
+    }
+
     /* ═══════════════════════════════════════════════
        Recipients — Render
        ═══════════════════════════════════════════════ */
@@ -2529,6 +2538,17 @@
         document.querySelectorAll('.recipients-manage-contact-row .role-pill, .recipients-manage-contact-row .btn-delete-contact, #manageAddContact').forEach(btn => {
             btn.addEventListener('click', () => { recipientsState.manageDirty = true; });
         });
+
+        // Email validation — delegated so dynamically-added rows are covered
+        const contactRowsContainer = document.getElementById('manageContactRows');
+        if (contactRowsContainer) {
+            contactRowsContainer.addEventListener('input', (e) => {
+                if (e.target.classList.contains('manage-contact-email')) {
+                    applyEmailWarn(e.target);
+                }
+            });
+            contactRowsContainer.querySelectorAll('.manage-contact-email').forEach(applyEmailWarn);
+        }
     }
 
     function copyRecipients(role) {

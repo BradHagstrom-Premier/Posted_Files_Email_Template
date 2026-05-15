@@ -230,6 +230,9 @@
             font-size: 12.5px;
             font-weight: 700;
         }
+        .recipients-help-popover h4 + dl + h4 {
+            margin-top: 14px;
+        }
         .recipients-help-popover dl {
             margin: 0;
             display: grid;
@@ -633,6 +636,17 @@
         .envelope-strip:hover { background: var(--surface-bg); }
         .envelope-strip[hidden] { display: none; }
         .envelope-strip .label { color: var(--text-secondary); font-weight: 400; }
+        .envelope-strip .label-warn { color: #b45309; font-weight: 600; }
+        .envelope-strip .label-warn::before {
+            content: '';
+            display: inline-block;
+            width: 6px;
+            height: 6px;
+            background: #d97706;
+            border-radius: 50%;
+            margin-right: 5px;
+            vertical-align: 1px;
+        }
         .envelope-strip .sep { color: var(--text-secondary); margin: 0 8px; }
         .envelope-strip:focus-visible {
             outline: none;
@@ -835,20 +849,29 @@
             display: flex;
             align-items: center;
             gap: 8px;
-            cursor: pointer;
-            user-select: none;
+            width: 100%;
+        }
+
+        .recipients-header-toggle {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
             background: none;
             border: none;
-            width: 100%;
-            text-align: left;
+            padding: 4px 6px;
+            margin: -4px -6px -4px -6px;
             font: inherit;
             color: inherit;
-            padding: 0;
+            text-align: left;
+            cursor: pointer;
+            user-select: none;
+            border-radius: 6px;
+            flex: 1;
+            min-width: 0;
         }
-        .recipients-header:focus-visible {
+        .recipients-header-toggle:focus-visible {
             outline: none;
             box-shadow: 0 0 0 3px rgba(13, 44, 113, 0.18);
-            border-radius: 6px;
         }
 
         .recipients-header-title {
@@ -1240,8 +1263,8 @@
         </button>
         <div class="header-pill-popover" id="headerPillPopover" role="menu" hidden></div>
         <button type="button" class="recipients-help-pill" id="helpPill" aria-haspopup="dialog" aria-expanded="false" title="Keyboard shortcuts">?</button>
-        <div class="recipients-help-popover" id="helpPopover" role="dialog" aria-label="Keyboard shortcuts" hidden>
-            <h4>Keyboard Shortcuts</h4>
+        <div class="recipients-help-popover" id="helpPopover" role="dialog" aria-label="Shortcuts" hidden>
+            <h4>Keyboard</h4>
             <dl>
                 <dt>Ctrl + Enter</dt><dd>Copy Email Body</dd>
                 <dt>Ctrl + Shift + C</dt><dd>Copy Subject</dd>
@@ -1249,7 +1272,13 @@
                 <dt>Ctrl + Shift + Y</dt><dd>Copy CC recipients</dd>
                 <dt>&#8592; / &#8594;</dt><dd>Switch tabs / toggle</dd>
                 <dt>Space / Enter</dt><dd>Toggle Recipients</dd>
-                <dt>Esc</dt><dd>Close popovers / manage</dd>
+                <dt>Esc</dt><dd>Close popover, then manage, then recipients</dd>
+            </dl>
+            <h4>Mouse</h4>
+            <dl>
+                <dt>&ldquo;Sending to&rdquo; pill</dt><dd>Switch client or manage</dd>
+                <dt>Envelope strip</dt><dd>Expand recipients</dd>
+                <dt>Triple-click subject</dt><dd>Select subject line</dd>
             </dl>
         </div>
         <span class="header-badge">Definian</span>
@@ -2153,7 +2182,7 @@
         const toCount = client ? client.contacts.filter((c, i) => c.checked && effectiveRole(i) === 'to').length : 0;
         const ccCount = client ? client.contacts.filter((c, i) => c.checked && effectiveRole(i) === 'cc').length : 0;
         const overrideCount = Object.keys(recipientsState.overrides || {}).length;
-        const modifiedSuffix = overrideCount > 0 ? `<span class="sep">·</span><span class="label">modified</span>` : '';
+        const modifiedSuffix = overrideCount > 0 ? `<span class="sep">·</span><span class="label-warn" title="${overrideCount} role${overrideCount === 1 ? '' : 's'} overridden for this send only; reset when you switch clients">modified</span>` : '';
         const modifiedAria = overrideCount > 0 ? ' Roles modified for this send.' : '';
         if (toCount + ccCount === 0) {
             strip.hidden = false;
@@ -2185,7 +2214,7 @@
         // Build collapsed header (always shown)
         let badgeHTML = '';
         let quickCopyHTML = '';
-        if (hasClients && client) {
+        if (hasClients && client && !recipientsState.expanded) {
             badgeHTML = `<span class="recipients-badge">${escapeHtml(client.name)}&nbsp;·&nbsp;${checkedContacts.length}</span>`;
             const quickToCount = client.contacts.filter((c, i) => c.checked && effectiveRole(i) === 'to').length;
             const quickCcCount = client.contacts.filter((c, i) => c.checked && effectiveRole(i) === 'cc').length;
@@ -2194,6 +2223,8 @@
             quickCopyHTML = `
                 <button type="button" class="btn-copy-quick" id="recipientsCopyQuickTo" ${quickToDisabled}>Copy To &#9658;</button>
                 <button type="button" class="btn-copy-quick" id="recipientsCopyQuickCc" ${quickCcDisabled}>Copy CC &#9658;</button>`;
+        } else if (hasClients && client) {
+            badgeHTML = `<span class="recipients-badge">${escapeHtml(client.name)}&nbsp;·&nbsp;${checkedContacts.length}</span>`;
         }
 
         const chevronClass = recipientsState.expanded ? 'recipients-chevron open' : 'recipients-chevron';
@@ -2256,12 +2287,14 @@
         }
 
         section.innerHTML = `
-            <button type="button" class="recipients-header" id="recipientsToggle" aria-expanded="${recipientsState.expanded}" aria-controls="recipientsBody">
-                <span class="recipients-header-title">Recipients</span>
-                ${badgeHTML}
+            <div class="recipients-header">
+                <button type="button" class="recipients-header-toggle" id="recipientsToggle" aria-expanded="${recipientsState.expanded}" aria-controls="recipientsBody">
+                    <span class="recipients-header-title">Recipients</span>
+                    ${badgeHTML}
+                    <span class="${chevronClass}" aria-hidden="true">&#9660;</span>
+                </button>
                 ${quickCopyHTML}
-                <span class="${chevronClass}" aria-hidden="true">&#9660;</span>
-            </button>
+            </div>
             ${bodyHTML}`;
 
         wireRecipientsEvents();
@@ -2374,20 +2407,14 @@
             });
         }
 
-        // Quick copy buttons (collapsed state)
+        // Quick copy buttons (collapsed state) — siblings of toggle, no stopPropagation needed
         const quickCopyTo = document.getElementById('recipientsCopyQuickTo');
         if (quickCopyTo) {
-            quickCopyTo.addEventListener('click', (e) => {
-                e.stopPropagation();
-                copyRecipients('to');
-            });
+            quickCopyTo.addEventListener('click', () => copyRecipients('to'));
         }
         const quickCopyCc = document.getElementById('recipientsCopyQuickCc');
         if (quickCopyCc) {
-            quickCopyCc.addEventListener('click', (e) => {
-                e.stopPropagation();
-                copyRecipients('cc');
-            });
+            quickCopyCc.addEventListener('click', () => copyRecipients('cc'));
         }
 
         // Client select dropdown
@@ -2601,10 +2628,22 @@
         if (railDelete) {
             railDelete.addEventListener('click', () => {
                 if (recipientsState.clients.length <= 1) return;
-                recipientsState.clients.splice(recipientsState.activeClientIndex, 1);
-                recipientsState.activeClientIndex = Math.max(0, recipientsState.activeClientIndex - 1);
+                const removedIndex = recipientsState.activeClientIndex;
+                const removedClient = JSON.parse(JSON.stringify(recipientsState.clients[removedIndex]));
+                const contactCount = removedClient.contacts.length;
+                recipientsState.clients.splice(removedIndex, 1);
+                recipientsState.activeClientIndex = Math.max(0, removedIndex - 1);
                 recipientsState.manageDirty = true;
                 renderRecipients();
+                const label = removedClient.name || '(Untitled)';
+                const message = contactCount === 1
+                    ? `Deleted "${label}" and 1 contact.`
+                    : `Deleted "${label}" and ${contactCount} contacts.`;
+                showUndoableToast(message, () => {
+                    recipientsState.clients.splice(removedIndex, 0, removedClient);
+                    recipientsState.activeClientIndex = removedIndex;
+                    renderRecipients();
+                });
             });
         }
 

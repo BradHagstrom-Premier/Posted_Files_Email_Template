@@ -45,15 +45,25 @@
 ## Recipients (Client Email List)
 - Collapsible section at bottom of form panel — UI-only, NOT included in email output (no `updatePreview()` coupling)
 - State in `recipientsState` JS object; mirrored to localStorage under `definian_recipients`
+- State shape: `{ activeClientIndex, expanded, manageMode, manageDirty, popoverOpen, clients: [{ name, contacts: [{ name, email, role, checked }] }], overrides }`. Multi-client is supported via the `clients[]` array — only `activeClientIndex`, `expanded`, and `clients` are persisted.
 - Render pattern: every mutation calls `saveRecipientsState()` then `renderRecipients()` which does full `innerHTML` replacement and re-wires events via `wireRecipientsEvents()`
+- `renderRecipients()` is the orchestrator — it calls `renderHeaderPill()` and `renderEnvelopeStrip()` on every render, then either `renderManageMode()` (when `manageMode`) or builds the collapsed/expanded body inline.
+- **Three persistent UI surfaces, three distinct jobs**: (1) header pill `Sending to: <client> · <count> ▾` for orientation + client switching; (2) envelope strip above preview iframe for at-a-glance `To: N · CC: N · Client` verification; (3) collapsible section at form panel bottom for management. Don't conflate them.
 - `renderManageMode()` is the inline editor; toggled by `recipientsState.manageMode`
+- Manage mode has a left rail listing all clients — rail switches preserve in-memory edits across clients; Save commits the whole `recipientsState` atomically; Done with `manageDirty: true` shows an inline Save & Close / Discard confirm
 - Visible across both tabs (lives outside `#postedFilesFields` / `#reconFields`)
+
+## Design Constraints (locked-in)
+- **Font-size ladder** is a closed set of 6 documented DESIGN.md steps: `15 / 14 / 13.5 / 12.5 / 11.5 / 11px`. Don't add new sizes — snap to nearest. Email-output sizes (14/15px inside JS template literals) are an independent Outlook-mandated set.
+- **Keyboard shortcuts**: `Ctrl+Enter` Copy Email, `Ctrl+Shift+C` Copy Subject, `Ctrl+Shift+T` Copy To, `Ctrl+Shift+Y` Copy CC, `←/→` on mode tabs and status toggle, `Esc` layered (popover → manage mode w/ dirty guard → expanded recipients). `?` pill in header opens the reference.
+- **`.form-input.warn:not(:focus)`** is the non-blocking warn pattern (amber border, amber halo). Reused on file-row labels (URL without label) and manage-mode email inputs (invalid format). Don't block save; just signal.
 
 ## Commands
 - No build/test commands — open `index.html` in browser to test
 - Verify both tabs: Posted Files and Recon Report, including Clean/Issues toggle and Copy buttons
-- Implementation plans and design specs live in `docs/superpowers/plans/`
+- Implementation plans live in `docs/superpowers/plans/`; design specs in `docs/superpowers/specs/`
 - Chrome DevTools MCP is preferred for scripted E2E verification (no automated test suite exists)
+- `npx impeccable --json index.html` runs the detector. Two persistent false positives: `overused-font: arial` (Arial only in email-output JS template literals — Outlook constraint) and `flat-type-hierarchy: 1.4:1` (intentional dense Product-register ladder matching DESIGN.md exactly).
 
 ## graphify
 

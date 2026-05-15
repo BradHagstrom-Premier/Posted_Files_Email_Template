@@ -41,6 +41,7 @@
 - `checkFileRowWarnings()` is called from `updatePreview()` on every state change; it applies/removes `.warn` on Posted Files file row label inputs
 - Recon email sentence suppresses the location label when no URL is provided: `': [link]'` only appears when `reconReportUrl` has a value
 - `escapeHtml(str)` is already defined (uses `textContent` → `innerHTML` trick) — reuse it; do not re-declare
+- `showUndoableToast(message, onUndoFn, durationMs=5000)` is the canonical reversible-delete pattern. File-row delete and `railDeleteClient` both use it; capture the removed object + insertion index in the closure. Toast flips to dark variant via `.undoable` class.
 
 ## Recipients (Client Email List)
 - Collapsible section at bottom of form panel — UI-only, NOT included in email output (no `updatePreview()` coupling)
@@ -52,11 +53,13 @@
 - `renderManageMode()` is the inline editor; toggled by `recipientsState.manageMode`
 - Manage mode has a left rail listing all clients — rail switches preserve in-memory edits across clients; Save commits the whole `recipientsState` atomically; Done with `manageDirty: true` shows an inline Save & Close / Discard confirm
 - Visible across both tabs (lives outside `#postedFilesFields` / `#reconFields`)
+- **Header row structure**: `.recipients-header` is a `<div>` wrapper. Only `.recipients-header-toggle` is the toggle `<button>`; quick-copy buttons (`.btn-copy-quick`) live as siblings, NOT children. They render only when `!recipientsState.expanded`. Do not nest interactive controls inside the toggle button.
 
 ## Design Constraints (locked-in)
 - **Font-size ladder** is a closed set of 6 documented DESIGN.md steps: `15 / 14 / 13.5 / 12.5 / 11.5 / 11px`. Don't add new sizes — snap to nearest. Email-output sizes (14/15px inside JS template literals) are an independent Outlook-mandated set.
 - **Keyboard shortcuts**: `Ctrl+Enter` Copy Email, `Ctrl+Shift+C` Copy Subject, `Ctrl+Shift+T` Copy To, `Ctrl+Shift+Y` Copy CC, `←/→` on mode tabs and status toggle, `Esc` layered (popover → manage mode w/ dirty guard → expanded recipients). `?` pill in header opens the reference.
 - **`.form-input.warn:not(:focus)`** is the non-blocking warn pattern (amber border, amber halo). Reused on file-row labels (URL without label) and manage-mode email inputs (invalid format). Don't block save; just signal.
+- **One canonical red**: `var(--error)` = `#dc2626` is the single red across all four delete affordances (file-row `×`, contact `×`, client delete, Discard button). Don't introduce a second red shade.
 
 ## Commands
 - No build/test commands — open `index.html` in browser to test

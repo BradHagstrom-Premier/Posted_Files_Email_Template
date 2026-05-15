@@ -15,11 +15,9 @@ Desktop.ini
 *.bak
 *.log
 
-# Generated knowledge graph (graphify)
-graphify-out/
-
 # Claude Code project-level settings (hook references a local tool install)
 .claude/settings.json
+.claude/settings.local.json
 
 # Superpowers brainstorming session artifacts
 .superpowers/
